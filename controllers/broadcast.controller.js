@@ -11,6 +11,7 @@ const createBroadcast = async (req, res) => {
     data: result,
   });
 };
+
 const getAllBroadcasts = async (req, res) => {
   const result = await broadcastService.getAllBroadcasts();
 
