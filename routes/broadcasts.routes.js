@@ -7,7 +7,7 @@ const {
   getAllBroadcasts,
   getUnjoinedBroadcasts,
   getSingleBroadcast,
-} = require("../controllers/Broadcast.controller");
+} = require("../controllers/broadcast.controller");
 
 router.post("/", auth, createBroadcast);
 router.get("/", auth, getAllBroadcasts);

@@ -32,13 +32,16 @@ app.use(helmet());
 app.use(xss());
 
 // routes
+app.get("/", (req, res) => {
+  res.send("Hello ma man");
+});
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/messages", authenticateUser, messagesRouter);
 app.use("/api/v1/broadcasts", broadcastRtouer);
 
-app.get("*", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "./client/build", "index.html"));
-});
+// app.get("*", (req, res) => {
+//   res.sendFile(path.resolve(__dirname, "./client/build", "index.html"));
+// });
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
