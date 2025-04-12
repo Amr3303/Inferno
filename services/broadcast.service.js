@@ -69,6 +69,37 @@ class BroadcastService {
       createdAt: broadcast.createdAt,
     };
   }
+
+  async joinBroadcast(broadcastId, userId) {
+    if (!broadcastId || !userId) {
+      throw new BadRequestError("Broadcast ID and User ID are required");
+    }
+
+    const broadcast = await Broadcast.findById(broadcastId);
+    if (!broadcast) {
+      throw new UnauthenticatedError("Broadcast not found");
+    }
+
+    // Check if the user is already a participant
+    if (broadcast.agents && broadcast.agents.includes(userId)) {
+      throw new BadRequestError("User has already joined this broadcast");
+    }
+
+    // Add user to the broadcast's participants
+    broadcast.agents = broadcast.agents || [];
+    broadcast.agents.push(userId);
+
+    await broadcast.save();
+
+    return {
+      id: broadcast._id,
+      name: broadcast.name,
+      description: broadcast.description,
+      createdBy: broadcast.createdBy,
+      createdAt: broadcast.createdAt,
+      agents: broadcast.agents,
+    };
+  }
 }
 
 module.exports = new BroadcastService();
