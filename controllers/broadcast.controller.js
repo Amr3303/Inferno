@@ -27,8 +27,8 @@ const getUnjoinedBroadcasts = async (req, res) => {
   const allBroadcasts = await broadcastService.getAllBroadcasts();
 
   // Assuming each broadcast has a 'participants' field that contains user IDs of joined users
-  const unjoinedBroadcasts = allBroadcasts.filter(broadcast => 
-    !broadcast.agents || !broadcast.agents.includes(userId)
+  const unjoinedBroadcasts = allBroadcasts.filter(
+    (broadcast) => !broadcast.agents || !broadcast.agents.includes(userId)
   );
 
   res.status(StatusCodes.OK).json({
@@ -56,9 +56,31 @@ const getSingleBroadcast = async (req, res) => {
   });
 };
 
+const joinBroadcast = async (req, res) => {
+  const { id } = req.params;
+  const { userId } = req.user;
+
+  // Assuming there's a service method to join a broadcast
+  const result = await broadcastService.joinBroadcast(id, userId);
+
+  if (!result) {
+    return res.status(StatusCodes.NOT_FOUND).json({
+      success: false,
+      message: "Broadcast not found or already joined.",
+    });
+  }
+
+  res.status(StatusCodes.OK).json({
+    success: true,
+    message: "Successfully joined the broadcast.",
+    data: result,
+  });
+};
+
 module.exports = {
   createBroadcast,
   getAllBroadcasts,
-	getUnjoinedBroadcasts,
-	getSingleBroadcast
+  getUnjoinedBroadcasts,
+  getSingleBroadcast,
+  joinBroadcast,
 };
