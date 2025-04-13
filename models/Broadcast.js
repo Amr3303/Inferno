@@ -15,7 +15,7 @@ const BroadcastSchema = new mongoose.Schema(
     agents: [
       {
         type: mongoose.Types.ObjectId,
-        ref: "User", 
+        ref: "User",
       },
     ],
     createdBy: {

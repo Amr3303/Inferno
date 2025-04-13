@@ -16,7 +16,11 @@ const MessageSchema = new mongoose.Schema(
       ref: "User",
       required: [true, "Please provide transmitter"],
     },
-    // For location type, store coordinates
+    broadcast: {
+      type: mongoose.Types.ObjectId,
+      ref: "Broadcast",
+      required: [true, "Please provide the associated broadcast"],
+    },
     coordinates: {
       type: {
         lat: Number,
@@ -25,8 +29,14 @@ const MessageSchema = new mongoose.Schema(
       required: function () {
         return this.type === "location";
       },
+      default: null,
+      validate: {
+        validator: function(value) {
+          return this.type === "location" ? value !== null : value === null;
+        },
+        message: props => `Coordinates should only be present for location type messages`
+      }
     },
-    // For progress type, store progress value
     progress: {
       type: Number,
       min: 0,
@@ -34,6 +44,13 @@ const MessageSchema = new mongoose.Schema(
       required: function () {
         return this.type === "progress";
       },
+      default: null,
+      validate: {
+        validator: function(value) {
+          return this.type === "progress" ? value !== null : value === null;
+        },
+        message: props => `Progress should only be present for progress type messages`
+      }
     },
   },
   { timestamps: true }
