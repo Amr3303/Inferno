@@ -5,6 +5,7 @@ const path = require("path");
 // extra security packages
 const helmet = require("helmet");
 const xss = require("xss-clean");
+const cors = require('cors');
 
 const express = require("express");
 const app = express();
@@ -25,24 +26,34 @@ const errorHandlerMiddleware = require("./middleware/error-handler");
 
 app.set("trust proxy", 1);
 
-app.use(express.static(path.resolve(__dirname, "./client/dist")));
+// Move static file serving after routes
 app.use(express.json());
 app.use(helmet());
-
 app.use(xss());
+app.use(cors({
+  origin: 'http://localhost:8080',
+  credentials: true
+}));
 
-// routes
-app.get("/", (req, res) => {
-  res.send("Hello ma man");
-});
+// API routes
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/broadcasts", broadcastRtouer);
 app.use("/api/v1/broadcasts", messagesRouter);
 
-// app.get("*", (req, res) => {
-//   res.sendFile(path.resolve(__dirname, "./Frontend/build", "index.html"));
+// Remove or comment out this route as it conflicts with the React app
+// app.get("/", (req, res) => {
+//   res.send("Hello ma man");
 // });
 
+// Serve static files
+app.use(express.static(path.resolve(__dirname, "./client/dist")));
+
+// Serve React app for all other routes
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "./client/dist", "index.html"));
+});
+
+// Error handling middleware should be last
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
