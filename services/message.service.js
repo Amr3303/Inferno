@@ -58,14 +58,24 @@ class MessageService {
 
     console.log("Done validating progress");
 
-    return await Message.create({
+    // Create base message object with common fields
+    const messageObject = {
       type: messageData.type,
       content: messageData.content,
       createdBy: messageData.createdBy,
       broadcast: messageData.broadcast,
-      coordinates: messageData.coordinates,
-      progress: messageData.progress,
-    });
+    };
+
+    // Add type-specific fields only if needed
+    if (messageData.type === 'location') {
+      messageObject.coordinates = messageData.coordinates;
+    }
+
+    if (messageData.type === 'progress') {
+      messageObject.progress = messageData.progress;
+    }
+
+    return await Message.create(messageObject);
   }
 
   async getMessages(broadcastId) {

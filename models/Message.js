@@ -44,10 +44,12 @@ const MessageSchema = new mongoose.Schema(
       required: function () {
         return this.type === "location";
       },
-      default: null,
       validate: {
         validator: function (value) {
-          return this.type === "location" ? value !== null : value === null;
+          if (this.type === "location") {
+            return value && typeof value.lat === 'number' && typeof value.lng === 'number';
+          }
+          return value === undefined;
         },
         message: (props) =>
           `Coordinates should only be present for location type messages`,
@@ -60,10 +62,12 @@ const MessageSchema = new mongoose.Schema(
       required: function () {
         return this.type === "progress";
       },
-      default: null,
       validate: {
         validator: function (value) {
-          return this.type === "progress" ? value !== null : value === null;
+          if (this.type === "progress") {
+            return typeof value === 'number' && value >= 0 && value <= 100;
+          }
+          return value === undefined;
         },
         message: (props) =>
           `Progress should only be present for progress type messages`,
