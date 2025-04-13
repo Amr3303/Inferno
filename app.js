@@ -25,7 +25,7 @@ const errorHandlerMiddleware = require("./middleware/error-handler");
 
 app.set("trust proxy", 1);
 
-app.use(express.static(path.resolve(__dirname, "./Frontend/build")));
+app.use(express.static(path.resolve(__dirname, "./client/dist")));
 app.use(express.json());
 app.use(helmet());
 
