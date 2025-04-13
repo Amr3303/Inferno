@@ -7,10 +7,6 @@ const sendMessage = async (req, res) => {
   req.body.createdBy = req.user.userId;
   req.body.broadcast = broadcastId;
 
-  console.log(`boradcastId: ${broadcastId}`);
-  console.log(`req.body.createdBy: ${req.body.createdBy}`);
-  console.log(`req.body.broadcast: ${req.body.broadcast}`);
-
   const message = await messageService.sendMessage(req.body);
 
   if (!message) {
