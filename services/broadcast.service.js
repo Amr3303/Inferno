@@ -36,6 +36,8 @@ class BroadcastService {
       description: broadcast.description,
       createdBy: broadcast.createdBy,
       createdAt: broadcast.createdAt,
+      role: "transmitter",
+      agents: [],
     };
   }
 
@@ -109,7 +111,7 @@ class BroadcastService {
         id: broadcast._id,
         name: broadcast.name,
         description: broadcast.description,
-        userRole:
+        role:
           broadcast.createdBy._id.toString() === userId
             ? "transmitter"
             : "agent",
@@ -122,6 +124,10 @@ class BroadcastService {
 
       return baseResponse;
     });
+  }
+
+  deleteAllBroadcasts() {
+    return Broadcast.deleteMany({});
   }
 }
 
