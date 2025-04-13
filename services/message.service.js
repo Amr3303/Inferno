@@ -13,9 +13,7 @@ class MessageService {
     ) {
       throw new CustomAPIError.BadRequestError("Missing required fields");
     }
-
-    console.log("Done validating required fields");
-
+    
     // Validate message type
     if (!["text", "query", "location", "progress"].includes(messageData.type)) {
       throw new CustomAPIError.BadRequestError("Invalid message type");

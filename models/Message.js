@@ -10,6 +10,21 @@ const MessageSchema = new mongoose.Schema(
     content: {
       type: mongoose.Schema.Types.Mixed,
       required: [true, "Please provide message content"],
+      validate: {
+        validator: function (value) {
+          if (this.type === "query") {
+            return (
+              value &&
+              typeof value === "object" &&
+              "query" in value &&
+              "details" in value
+            );
+          }
+          return true;
+        },
+        message: (props) =>
+          `Query type messages must include 'query' and 'details' fields`,
+      },
     },
     createdBy: {
       type: mongoose.Types.ObjectId,
@@ -31,11 +46,12 @@ const MessageSchema = new mongoose.Schema(
       },
       default: null,
       validate: {
-        validator: function(value) {
+        validator: function (value) {
           return this.type === "location" ? value !== null : value === null;
         },
-        message: props => `Coordinates should only be present for location type messages`
-      }
+        message: (props) =>
+          `Coordinates should only be present for location type messages`,
+      },
     },
     progress: {
       type: Number,
@@ -46,11 +62,12 @@ const MessageSchema = new mongoose.Schema(
       },
       default: null,
       validate: {
-        validator: function(value) {
+        validator: function (value) {
           return this.type === "progress" ? value !== null : value === null;
         },
-        message: props => `Progress should only be present for progress type messages`
-      }
+        message: (props) =>
+          `Progress should only be present for progress type messages`,
+      },
     },
   },
   { timestamps: true }
