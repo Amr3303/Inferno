@@ -103,10 +103,30 @@ class MessageService {
     return savedMessage;
   }
 
-  async getMessages(broadcastId) {
-    return await Message.find({ broadcast: broadcastId })
+  async getMessages(broadcastId, queryOptions = {}) {
+    const { type, page = 1, limit = 10, sort = '-createdAt' } = queryOptions;
+    
+    const query = { broadcast: broadcastId };
+    if (type) {
+      query.type = type;
+    }
+
+    const skip = (page - 1) * limit;
+
+    const messages = await Message.find(query)
       .populate("createdBy", "name email")
-      .sort({ createdAt: -1 });
+      .sort(sort)
+      .skip(skip)
+      .limit(limit);
+
+    const totalMessages = await Message.countDocuments(query);
+
+    return {
+      messages,
+      currentPage: page,
+      totalPages: Math.ceil(totalMessages / limit),
+      totalMessages
+    };
   }
 
   async getMessage(messageId) {

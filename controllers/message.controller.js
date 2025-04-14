@@ -22,8 +22,16 @@ const sendMessage = async (req, res) => {
 
 const getMessages = async (req, res) => {
   const { broadcastId } = req.params;
-  const messages = await messageService.getMessages(broadcastId);
-  res.status(StatusCodes.OK).json({ messages, count: messages.length });
+  const { type, page, limit, sort } = req.query;
+
+  const result = await messageService.getMessages(broadcastId, {
+    type,
+    page: parseInt(page),
+    limit: parseInt(limit),
+    sort
+  });
+
+  res.status(StatusCodes.OK).json(result);
 };
 
 const getMessage = async (req, res) => {
