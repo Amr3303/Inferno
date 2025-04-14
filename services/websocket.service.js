@@ -9,14 +9,16 @@ class WebSocketService {
   initialize(server) {
     this.wss = new WebSocket.Server({ 
       server,
-      path: "/ws"
+      path: "/ws" // Add explicit path for WebSocket
     });
 
     this.wss.on("connection", (ws, req) => {
       console.log("Client connected");
 
       // Parse URL to get query parameters
-      const url = new URL(req.url, req.headers.origin || 'http://localhost:5000');
+      const url = new URL(req.url, 
+        req.headers.origin || "https://inferno-neon.vercel.app"
+      );
       const userId = url.searchParams.get("userId");
       const broadcastId = url.searchParams.get("broadcastId");
 

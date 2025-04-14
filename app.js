@@ -33,10 +33,7 @@ app.use(helmet());
 app.use(xss());
 app.use(
   cors({
-    origin: [
-      "http://localhost:8080",
-      "https://inferno-neon.vercel.app", // Add your Vercel domain
-    ],
+    origin: ["http://localhost:8080", "https://inferno-neon.vercel.app"],
     credentials: true,
   })
 );
