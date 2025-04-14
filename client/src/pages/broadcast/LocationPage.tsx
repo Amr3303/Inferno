@@ -8,7 +8,9 @@ export const LocationPage: FC = () => {
     <MainLayout showSidebar title="Broadcast Location">
       <LocationCard 
         coordinates="30.0768163914401931.2847391229373"
-        onOptionsClick={() => {}}
+        onOptionsClick={() => {
+          
+        }}
       />
     </MainLayout>
   );
