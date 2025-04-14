@@ -1,21 +1,19 @@
-import { useWebSocket } from "../hooks/useWebSocket";
-import { useState, useEffect } from "react";
+import { usePusher } from "../hooks/usePusher";
+import { useState } from "react";
 
 interface BroadcastProps {
-  userId: string;
   broadcastId: string;
 }
 
-const Broadcast: React.FC<BroadcastProps> = ({ userId, broadcastId }) => {
+const Broadcast: React.FC<BroadcastProps> = ({ broadcastId }) => {
   const [messages, setMessages] = useState<any[]>([]);
 
-  const handleMessage = (message) => {
+  const handleMessage = (message: any) => {
     setMessages((prev) => [...prev, message]);
     console.log("Received message:", message);
   };
 
-  useWebSocket({
-    userId,
+  usePusher({
     broadcastId,
     onMessage: handleMessage,
   });
@@ -24,7 +22,6 @@ const Broadcast: React.FC<BroadcastProps> = ({ userId, broadcastId }) => {
     <div>
       {messages.map((msg, index) => (
         <div key={index}>
-          {/* Display your messages based on type */}
           {msg.content}
         </div>
       ))}

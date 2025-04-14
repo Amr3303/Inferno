@@ -1,7 +1,7 @@
 const Message = require("../models/Message");
 const Broadcast = require("../models/Broadcast");
 const CustomAPIError = require("../errors");
-const websocketService = require("./websocket.service");
+const pusherService = require("./pusher.service");
 
 class MessageService {
   async sendMessage(messageData) {
@@ -14,7 +14,7 @@ class MessageService {
     ) {
       throw new CustomAPIError.BadRequestError("Missing required fields");
     }
-    
+
     // Validate message type
     if (!["text", "query", "location", "progress"].includes(messageData.type)) {
       throw new CustomAPIError.BadRequestError("Invalid message type");
@@ -68,17 +68,18 @@ class MessageService {
     };
 
     // Add type-specific fields only if needed
-    if (messageData.type === 'location') {
+    if (messageData.type === "location") {
       messageObject.coordinates = messageData.coordinates;
     }
 
-    if (messageData.type === 'progress') {
+    if (messageData.type === "progress") {
       messageObject.progress = messageData.progress;
     }
 
     // Save message to database
+    // In the sendMessage method, replace the websocket broadcast with:
     const savedMessage = await Message.create(messageObject);
-    
+
     // Broadcast the message to all connected clients
     const broadcastPayload = {
       type: savedMessage.type,
@@ -86,26 +87,31 @@ class MessageService {
       messageId: savedMessage._id,
       createdBy: savedMessage.createdBy,
       createdAt: savedMessage.createdAt,
+      ...(savedMessage.type === "location" && {
+        coordinates: savedMessage.coordinates,
+      }),
+      ...(savedMessage.type === "progress" && {
+        progress: savedMessage.progress,
+      }),
     };
-    
-    // Add type-specific fields to the broadcast payload
-    if (savedMessage.type === 'location') {
-      broadcastPayload.coordinates = savedMessage.coordinates;
-    }
-    
-    if (savedMessage.type === 'progress') {
-      broadcastPayload.progress = savedMessage.progress;
-    }
-    
-    // Broadcast the message
-    websocketService.broadcastMessage(savedMessage.broadcast.toString(), broadcastPayload);
-    
+
+    // Broadcast using Pusher
+    await pusherService.broadcastMessage(
+      savedMessage.broadcast.toString(),
+      broadcastPayload
+    );
+
+    console.log("save message to string: ", savedMessage.broadcast.toString());
+    console.log("broadcast payload: ", broadcastPayload);
+
+    console.log("Done broadcasting message");
+
     return savedMessage;
   }
 
   async getMessages(broadcastId, queryOptions = {}) {
-    const { type, page = 1, limit = 10, sort = '-createdAt' } = queryOptions;
-    
+    const { type, page = 1, limit = 10, sort = "-createdAt" } = queryOptions;
+
     const query = { broadcast: broadcastId };
     if (type) {
       query.type = type;
@@ -125,7 +131,7 @@ class MessageService {
       messages,
       currentPage: page,
       totalPages: Math.ceil(totalMessages / limit),
-      totalMessages
+      totalMessages,
     };
   }
 
@@ -135,7 +141,9 @@ class MessageService {
       .populate("broadcast", "name description");
 
     if (!message) {
-      throw new CustomAPIError.NotFoundError(`No message found with id: ${messageId}`);
+      throw new CustomAPIError.NotFoundError(
+        `No message found with id: ${messageId}`
+      );
     }
 
     // Format the response
@@ -147,15 +155,15 @@ class MessageService {
       broadcast: {
         id: message.broadcast._id,
         name: message.broadcast.name,
-        description: message.broadcast.description
+        description: message.broadcast.description,
       },
       sender: {
         id: message.createdBy._id,
         name: message.createdBy.name,
-        email: message.createdBy.email
+        email: message.createdBy.email,
       },
-      ...(message.type === 'location' && { coordinates: message.coordinates }),
-      ...(message.type === 'progress' && { progress: message.progress })
+      ...(message.type === "location" && { coordinates: message.coordinates }),
+      ...(message.type === "progress" && { progress: message.progress }),
     };
   }
 

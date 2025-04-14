@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html>
+<head>
+    <title>Pusher Test</title>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <style>
+        .container { padding: 20px; }
+        .message { margin: 10px 0; padding: 10px; background: #f0f0f0; }
+        button { margin: 5px; padding: 8px; }
+        input { margin: 5px; padding: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pusher Test</h1>
+        
+        <!-- Login Form -->
+        <div id="loginForm">
+            <input type="email" id="email" placeholder="Email" value="test@test.com">
+            <input type="password" id="password" placeholder="Password" value="secret123">
+            <button onclick="login()">Login</button>
+        </div>
+
+        <!-- Join Broadcast Form -->
+        <div id="joinForm" style="display: none;">
+            <input type="text" id="broadcastId" placeholder="Broadcast ID" value="123">
+            <button onclick="joinBroadcast()">Join Broadcast</button>
+        </div>
+
+        <!-- Messages Container -->
+        <div id="messages"></div>
+    </div>
+
+    <script>
+        let token = '';
+        let pusher = null;
+        let channel = null;
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('http://localhost:5000/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                console.log('Login response:', data);
+
+                if (data.user && data.token) {
+                    token = data.token;
+                    document.getElementById('loginForm').style.display = 'none';
+                    document.getElementById('joinForm').style.display = 'block';
+                    console.log('Login successful, token:', token);
+                } else {
+                    throw new Error(data.msg || 'Login failed');
+                }
+            } catch (error) {
+                console.error('Login failed:', error);
+                alert('Login error: ' + error.message);
+            }
+        }
+
+        async function joinBroadcast() {
+            const broadcastId = document.getElementById('broadcastId').value;
+
+            try {
+                // Join the broadcast
+                const response = await fetch(`http://localhost:5000/api/v1/broadcasts/${broadcastId}/join`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    // Initialize Pusher after joining
+                    pusher = new Pusher('7cc17b8ffe1acd631dea', {
+                        cluster: 'eu'
+                    });
+
+                    channel = pusher.subscribe(`broadcast-${broadcastId}`);
+                    channel.bind('new-message', function(data) {
+                        const messagesDiv = document.getElementById('messages');
+                        const messageEl = document.createElement('div');
+                        messageEl.className = 'message';
+                        messageEl.textContent = JSON.stringify(data, null, 2);
+                        messagesDiv.appendChild(messageEl);
+                    });
+
+                    document.getElementById('joinForm').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Failed to join broadcast:', error);
+                alert('Failed to join broadcast: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

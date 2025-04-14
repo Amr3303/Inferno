@@ -28,7 +28,7 @@ const getMessages = async (req, res) => {
     type,
     page: parseInt(page),
     limit: parseInt(limit),
-    sort
+    sort,
   });
 
   res.status(StatusCodes.OK).json(result);
@@ -41,7 +41,7 @@ const getMessage = async (req, res) => {
   res.status(StatusCodes.OK).json({
     success: true,
     message: "Message retrieved successfully",
-    data: message
+    data: message,
   });
 };
 
