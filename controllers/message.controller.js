@@ -38,11 +38,11 @@ const getMessage = async (req, res) => {
   const { id: messageId } = req.params;
   const message = await messageService.getMessage(messageId);
 
-  if (!message) {
-    throw new CustomError.NotFoundError(`No message with id: ${messageId}`);
-  }
-
-  res.status(StatusCodes.OK).json({ message });
+  res.status(StatusCodes.OK).json({
+    success: true,
+    message: "Message retrieved successfully",
+    data: message
+  });
 };
 
 const updateMessage = async (req, res) => {

@@ -130,10 +130,33 @@ class MessageService {
   }
 
   async getMessage(messageId) {
-    return await Message.findById(messageId).populate(
-      "createdBy",
-      "name email"
-    );
+    const message = await Message.findById(messageId)
+      .populate("createdBy", "name email")
+      .populate("broadcast", "name description");
+
+    if (!message) {
+      throw new CustomAPIError.NotFoundError(`No message found with id: ${messageId}`);
+    }
+
+    // Format the response
+    return {
+      id: message._id,
+      type: message.type,
+      content: message.content,
+      createdAt: message.createdAt,
+      broadcast: {
+        id: message.broadcast._id,
+        name: message.broadcast.name,
+        description: message.broadcast.description
+      },
+      sender: {
+        id: message.createdBy._id,
+        name: message.createdBy.name,
+        email: message.createdBy.email
+      },
+      ...(message.type === 'location' && { coordinates: message.coordinates }),
+      ...(message.type === 'progress' && { progress: message.progress })
+    };
   }
 
   async updateMessage(messageId, updateData) {
