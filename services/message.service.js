@@ -147,5 +147,3 @@ class MessageService {
     return await Message.findByIdAndDelete(messageId);
   }
 }
-
-module.exports = new MessageService();

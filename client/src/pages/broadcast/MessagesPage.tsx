@@ -247,7 +247,7 @@ export const MessagesPage: FC = () => {
             type="text"
             value={messageText}
             onChange={(e) => setMessageText(e.target.value)}
-            className="p-3 border border-gray-300 rounded-l-md w-[1000px]"
+            className="p-3 border border-gray-300 rounded-l-md w-[1070px]"
             placeholder="Create"
             disabled={isLoading}
           />
