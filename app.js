@@ -5,14 +5,14 @@ const path = require("path");
 // extra security packages
 const helmet = require("helmet");
 const xss = require("xss-clean");
-const cors = require('cors');
+const cors = require("cors");
 
 const express = require("express");
 const app = express();
 
 // WebSocket support
 const http = require("http");
-const WebSocket = require("ws");
+const websocketService = require("./services/websocket.service");
 
 const connectDB = require("./db/connect");
 const authenticateUser = require("./middleware/authentication");
@@ -20,6 +20,7 @@ const authenticateUser = require("./middleware/authentication");
 const authRouter = require("./routes/auth");
 const broadcastRtouer = require("./routes/broadcasts.routes");
 const messagesRouter = require("./routes/messages.routes");
+const websocketRouter = require("./routes/websocket.routes");
 // error handler
 const notFoundMiddleware = require("./middleware/not-found");
 const errorHandlerMiddleware = require("./middleware/error-handler");
@@ -30,15 +31,21 @@ app.set("trust proxy", 1);
 app.use(express.json());
 app.use(helmet());
 app.use(xss());
-app.use(cors({
-  origin: 'http://localhost:8080',
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:8080",
+      "https://inferno-neon.vercel.app", // Add your Vercel domain
+    ],
+    credentials: true,
+  })
+);
 
 // API routes
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/broadcasts", broadcastRtouer);
 app.use("/api/v1/broadcasts", messagesRouter);
+app.use("/api/v1/websocket", websocketRouter);
 
 // Remove or comment out this route as it conflicts with the React app
 // app.get("/", (req, res) => {
@@ -62,29 +69,11 @@ const port = process.env.PORT || 5000;
 // Create HTTP server
 const server = http.createServer(app);
 
-// Create WebSocket server
-const wss = new WebSocket.Server({ server });
+// Initialize WebSocket service
+websocketService.initialize(server);
 
-// Store WebSocket server in app.locals for access in controllers
-app.locals.wss = wss;
-
-// WebSocket connection handling
-wss.on("connection", (ws) => {
-  console.log("Client connected");
-
-  // Send a welcome message
-  ws.send(
-    JSON.stringify({
-      type: "system",
-      content: "Connected to Inferno Broadcasting System",
-      timestamp: new Date(),
-    })
-  );
-
-  ws.on("close", () => {
-    console.log("Client disconnected");
-  });
-});
+// Remove the existing WebSocket code
+// wss.on("connection", (ws) => { ... });
 
 const start = async () => {
   try {

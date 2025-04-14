@@ -1,6 +1,7 @@
 const Message = require("../models/Message");
 const Broadcast = require("../models/Broadcast");
 const CustomAPIError = require("../errors");
+const websocketService = require("./websocket.service");
 
 class MessageService {
   async sendMessage(messageData) {
@@ -75,7 +76,31 @@ class MessageService {
       messageObject.progress = messageData.progress;
     }
 
-    return await Message.create(messageObject);
+    // Save message to database
+    const savedMessage = await Message.create(messageObject);
+    
+    // Broadcast the message to all connected clients
+    const broadcastPayload = {
+      type: savedMessage.type,
+      content: savedMessage.content,
+      messageId: savedMessage._id,
+      createdBy: savedMessage.createdBy,
+      createdAt: savedMessage.createdAt,
+    };
+    
+    // Add type-specific fields to the broadcast payload
+    if (savedMessage.type === 'location') {
+      broadcastPayload.coordinates = savedMessage.coordinates;
+    }
+    
+    if (savedMessage.type === 'progress') {
+      broadcastPayload.progress = savedMessage.progress;
+    }
+    
+    // Broadcast the message
+    websocketService.broadcastMessage(savedMessage.broadcast.toString(), broadcastPayload);
+    
+    return savedMessage;
   }
 
   async getMessages(broadcastId) {
