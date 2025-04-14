@@ -42,7 +42,7 @@ export const RegisterPage: FC = () => {
 
       localStorage.setItem('user', JSON.stringify(data.data.user));
       localStorage.setItem('token', data.data.token);
-
+      
       toast({
         title: 'Success',
         description: 'Account created successfully!',
