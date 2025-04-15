@@ -32,8 +32,8 @@ export const AddQueryModal: FC<AddQueryModalProps> = ({ isOpen, onClose }) => {
   const handleSendQuery = async () => {
     if (!queryName.trim() || !queryDescription.trim()) {
       toast({
-        title: "خطأ",
-        description: "الرجاء ملء جميع الحقول",
+        title: "error",
+        description: "Please fill in all fields.",
         variant: "destructive"
       });
       return;
@@ -66,22 +66,22 @@ export const AddQueryModal: FC<AddQueryModalProps> = ({ isOpen, onClose }) => {
 
       if (data.success) {
         toast({
-          title: "نجاح",
-          description: "تم إرسال الرسالة بنجاح!"
+          title: "success",
+          description: "Message sent successfully!"
         });
         setQueryName('');
         setQueryDescription('');
         onClose();
       } else {
         toast({
-          description: data.message || "فشل إرسال الرسالة"
+          description: data.message || "Failed to send message"
         });
       }
     } catch (error: any) {
-      console.error("خطأ في إرسال الرسالة:", error);
+      console.error("Error sending message:", error);
       toast({
-        title: "خطأ",
-        description: error.message || "فشل الاتصال بالخادم",
+        title: "error",
+        description: error.message || "Connection to server failed",
         variant: "destructive"
       });
     } finally {
@@ -95,7 +95,7 @@ export const AddQueryModal: FC<AddQueryModalProps> = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-96 max-w-lg">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">إضافة استعلام</h2>
+          <h2 className="text-xl font-bold">Add query</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
@@ -106,7 +106,7 @@ export const AddQueryModal: FC<AddQueryModalProps> = ({ isOpen, onClose }) => {
 
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            اسم الاستعلام
+          Query name
           </label>
           <div className="relative">
             <input
@@ -114,7 +114,7 @@ export const AddQueryModal: FC<AddQueryModalProps> = ({ isOpen, onClose }) => {
               value={queryName}
               onChange={(e) => setQueryName(e.target.value)}
               className="p-3 border border-gray-300 rounded-md w-full"
-              placeholder="أدخل اسم الاستعلام"
+              placeholder="Enter the query name"
             />
           </div>
         </div>
@@ -128,7 +128,7 @@ export const AddQueryModal: FC<AddQueryModalProps> = ({ isOpen, onClose }) => {
               value={queryDescription}
               onChange={(e) => setQueryDescription(e.target.value)}
               className="p-3 border border-gray-300 rounded-md w-full"
-              placeholder="أدخل وصف الاستعلام"
+              placeholder="Enter a description of the query."
             />
           </div>
         </div>
@@ -165,7 +165,7 @@ export const AddQueryModal: FC<AddQueryModalProps> = ({ isOpen, onClose }) => {
                 جاري الإرسال...
               </span>
             ) : (
-              "إضافة استعلام"
+              "Add query"
             )}
           </button>
         </div>

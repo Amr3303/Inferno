@@ -18,16 +18,16 @@ export const AddAgentModal: FC<AddAgentModalProps> = ({ isOpen, onClose }) => {
   const handleAddAgent = () => {
     if (!newAgentEmail.trim()) {
       toast({
-        title: "خطأ",
-        description: "الرجاء إدخال عنوان بريد إلكتروني",
+        title: "error",
+        description: "Please enter an email address.",
         variant: "destructive"
       });
       return;
     }
 
     toast({
-      title: "نجاح",
-      description: `تم إرسال دعوة للوكيل على ${newAgentEmail}`
+      title: "success",
+      description: `An invitation has been sent to the agent.${newAgentEmail}`
     });
 
     setNewAgentEmail('');
@@ -40,7 +40,7 @@ export const AddAgentModal: FC<AddAgentModalProps> = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-96 max-w-lg">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">إضافة وكيل</h2>
+          <h2 className="text-xl font-bold">Add agent</h2>
           <button 
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
@@ -51,7 +51,7 @@ export const AddAgentModal: FC<AddAgentModalProps> = ({ isOpen, onClose }) => {
         
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            البريد الإلكتروني
+          e-mail
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -72,7 +72,7 @@ export const AddAgentModal: FC<AddAgentModalProps> = ({ isOpen, onClose }) => {
             onClick={handleAddAgent}
             className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
           >
-            إضافة وكيل
+            Add agent
           </button>
         </div>
       </div>

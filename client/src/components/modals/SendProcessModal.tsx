@@ -130,8 +130,8 @@ export const SendProcessModal: FC<SendProcessModalProps> = ({ isOpen, onClose })
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-96 max-w-lg">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">إرسال عملية</h2>
-          <button 
+          <h2 className="text-xl font-bold">Send process</h2>
+          <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
           >
@@ -142,21 +142,20 @@ export const SendProcessModal: FC<SendProcessModalProps> = ({ isOpen, onClose })
         {/* Process Name */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            اسم العملية
-          </label>
+            Process name          </label>
           <input
             type="text"
             value={processName}
             onChange={(e) => setProcessName(e.target.value)}
             className="p-3 border border-gray-300 rounded-md w-full"
-            placeholder="أدخل اسم العملية"
+            placeholder="Enter the process name."
           />
         </div>
 
         {/* Process Progress */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            نسبة التقدم %
+            Progress rate %
           </label>
           <input
             type="number"
@@ -165,7 +164,7 @@ export const SendProcessModal: FC<SendProcessModalProps> = ({ isOpen, onClose })
             value={processProgress}
             onChange={(e) => setProcessProgress(parseInt(e.target.value) || 0)}
             className="p-3 border border-gray-300 rounded-md w-full"
-            placeholder="أدخل نسبة التقدم"
+            placeholder="Enter the progress percentage."
           />
         </div>
 
@@ -175,7 +174,7 @@ export const SendProcessModal: FC<SendProcessModalProps> = ({ isOpen, onClose })
             disabled={isLoading}
             className={`px-4 py-2 text-white rounded-md ${isLoading ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'}`}
           >
-            {isLoading ? 'جاري الإرسال...' : 'إرسال'}
+            {isLoading ? 'Sending...' : 'Sending'}
           </button>
         </div>
       </div>
