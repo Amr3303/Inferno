@@ -108,6 +108,7 @@ export const DropdownMenu: FC<DropdownMenuProps> = ({ onItemClick, isMenuBelow =
     "Add Agent",
     "View Agents",
     "View Message",
+    "View Text",
     "View Location",
     "View Process",
     "View Query"

@@ -160,9 +160,22 @@ export const useMessageApi = () => {
       return false;
     }
 
+    if (!BROADCAST_ID) {
+      toast({
+        title: "خطأ",
+        description: "لم يتم تحديد البث، يرجى اختيار بث أولاً.",
+        variant: "destructive"
+      });
+      return false;
+    }
+
     setIsLoading(true);
 
     try {
+      console.log("token:", token);
+      console.log("BROADCAST_ID:", BROADCAST_ID);
+      console.log("API Endpoint:", API_ENDPOINT);
+
       const response = await fetch(API_ENDPOINT, {
         method: 'POST',
         headers: {
@@ -176,6 +189,9 @@ export const useMessageApi = () => {
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Response not ok. Status:", response.status, "Text:", errorText);
+
         if (response.status === 403) {
           toast({
             title: "خطأ",
@@ -188,9 +204,11 @@ export const useMessageApi = () => {
         return false;
       }
 
-      const responseText = await response.text();
-      console.log("Response text:", responseText);
-      const data: MessageResponse = responseText ? JSON.parse(responseText) : {};
+      const data: MessageResponse = await response.json();
+
+      console.log("Response status:", response.status);
+      console.log("Response headers:", Array.from(response.headers.entries()));
+      console.log("Response data:", data);
 
       if (data.success && data.data) {
         toast({

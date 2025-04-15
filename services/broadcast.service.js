@@ -38,6 +38,8 @@ class BroadcastService {
       createdAt: broadcast.createdAt,
       role: "transmitter",
       agents: [],
+      role: "transmitter",
+      agents: [],
     };
   }
 
