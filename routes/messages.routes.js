@@ -11,10 +11,18 @@ const {
 const auth = require("../middleware/authentication");
 
 // Send a message to a broadcast
-router.post("/:broadcastId/messages", [auth, checkBroadcastMembership], sendMessage);
+router.post(
+  "/:broadcastId/messages",
+  [auth, checkBroadcastMembership],
+  sendMessage
+);
 
 // Get all messages for a broadcast
-router.get("/:broadcastId/messages", [auth, checkBroadcastMembership], getMessages);
+router.get(
+  "/:broadcastId/messages",
+  [auth, checkBroadcastMembership],
+  getMessages
+);
 
 // Get a single message
 router.get("/:id", [auth, checkBroadcastMembership], getMessage);

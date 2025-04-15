@@ -18,9 +18,9 @@
 //   agents?: string[];
 // }
 
-// export const MainLayout: FC<MainLayoutProps> = ({ 
-//   children, 
-//   title, 
+// export const MainLayout: FC<MainLayoutProps> = ({
+//   children,
+//   title,
 //   showSidebar = false,
 //   onMenuItemClick ,
 // }) => {
@@ -34,7 +34,7 @@
 //     const fetchBroadcasts = async () => {
 //       try {
 //         const token = localStorage.getItem('token'); // استرجاع الـ token من الـ localStorage
-  
+
 //         const response = await fetch('https://inferno-neon.vercel.app/api/v1/broadcasts/my', {
 //           method: 'GET',
 //           headers: {
@@ -42,10 +42,10 @@
 //             'Content-Type': 'application/json',
 //           },
 //         });
-  
+
 //         const data = await response.json();
 //         console.log('Data:', data); // طباعة البيانات المسترجعة
-  
+
 //         if (data.success) {
 //           console.log("Broadcasts from API:", data.data);
 //           setBroadcasts(data.data); // تحديث حالة البث
@@ -111,14 +111,14 @@
 //           </div>
 //           <SendOptionsDropdownHome onItemClick={onMenuItemClick || setSelectedAction} /> {/* تمرير الفنكشن هنا */}
 //         </header>
-        
+
 //         {title && (
 //           <div className="flex justify-between items-center p-4 border-b border-gray-300">
 //             <h1 className="text-xl font-bold">{title}</h1>
 //             <DropdownMenu onItemClick={onMenuItemClick || setSelectedAction} /> {/* تمرير الفنكشن هنا */}
 //           </div>
 //         )}
-        
+
 //         <main className="p-4">
 //           {renderContent()}
 //         </main>
@@ -126,11 +126,11 @@
 //     </div>
 //   );
 // };
-import { FC, ReactNode, useState, useEffect } from 'react';
-import { BroadcastLogo } from '../components/BroadcastLogo';
-import { DropdownMenu } from '../components/DropdownMenu';
-import { SendOptionsDropdownHome } from '../components/HomeDropdownMenu';
-import { ChevronLeft, ChevronRight } from 'lucide-react'; // أيقونات SVG
+import { FC, ReactNode, useState, useEffect } from "react";
+import { BroadcastLogo } from "../components/BroadcastLogo";
+import { DropdownMenu } from "../components/DropdownMenu";
+import { SendOptionsDropdownHome } from "../components/HomeDropdownMenu";
+import { ChevronLeft, ChevronRight } from "lucide-react"; // أيقونات SVG
 
 interface MainLayoutProps {
   children: ReactNode | ((action: string | null) => ReactNode);
@@ -147,14 +147,16 @@ interface Broadcast {
   agents?: string[];
 }
 
-export const MainLayout: FC<MainLayoutProps> = ({ 
-  children, 
-  title, 
+export const MainLayout: FC<MainLayoutProps> = ({
+  children,
+  title,
   showSidebar = false,
   onMenuItemClick,
 }) => {
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
-  const [selectedBroadcastId, setSelectedBroadcastId] = useState<string | null>(null);
+  const [selectedBroadcastId, setSelectedBroadcastId] = useState<string | null>(
+    null
+  );
   const [selectedUserRole, setSelectedUserRole] = useState<string | null>(null);
   const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
   const [showBroadcasts, setShowBroadcasts] = useState<boolean>(true);
@@ -162,36 +164,39 @@ export const MainLayout: FC<MainLayoutProps> = ({
   useEffect(() => {
     const fetchBroadcasts = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const response = await fetch('https://inferno-neon.vercel.app/api/v1/broadcasts/my', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+        const token = localStorage.getItem("token");
+        const response = await fetch(
+          "/api/v1/broadcasts/my",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         const data = await response.json();
         if (data.success) {
           setBroadcasts(data.data);
         }
       } catch (error) {
-        console.error('Error fetching broadcasts:', error);
+        console.error("Error fetching broadcasts:", error);
       }
     };
     fetchBroadcasts();
   }, []);
 
   const renderContent = () => {
-    if (typeof children === 'function') {
+    if (typeof children === "function") {
       return (children as (action: string | null) => ReactNode)(selectedAction);
     }
     return children;
   };
 
   const handleButtonClick = (id: string, role: string) => {
-    localStorage.setItem('selectedBroadcastId', id);
-    localStorage.setItem('selectedUserRole', role);
+    localStorage.setItem("selectedBroadcastId", id);
+    localStorage.setItem("selectedUserRole", role);
     setSelectedBroadcastId(id);
     setSelectedUserRole(role);
     setSelectedAction(id);
@@ -208,7 +213,11 @@ export const MainLayout: FC<MainLayoutProps> = ({
           onClick={() => setShowBroadcasts(!showBroadcasts)}
           className="fixed bottom-20 right-4 z-50 p-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition duration-300"
         >
-          {showBroadcasts ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+          {showBroadcasts ? (
+            <ChevronLeft size={20} />
+          ) : (
+            <ChevronRight size={20} />
+          )}
         </button>
       )}
 
@@ -221,9 +230,13 @@ export const MainLayout: FC<MainLayoutProps> = ({
                 <button
                   key={broadcast.id}
                   className={`w-full text-left py-2 px-3 border border-gray-300 rounded ${
-                    selectedBroadcastId === broadcast.id ? 'bg-blue-500 text-white' : ''
+                    selectedBroadcastId === broadcast.id
+                      ? "bg-blue-500 text-white"
+                      : ""
                   }`}
-                  onClick={() => handleButtonClick(broadcast.id, broadcast.role)}
+                  onClick={() =>
+                    handleButtonClick(broadcast.id, broadcast.role)
+                  }
                 >
                   {broadcast.name}
                 </button>
@@ -238,7 +251,9 @@ export const MainLayout: FC<MainLayoutProps> = ({
           <div className="flex items-center space-x-4">
             <BroadcastLogo size="sm" />
           </div>
-          <SendOptionsDropdownHome onItemClick={onMenuItemClick || setSelectedAction} />
+          <SendOptionsDropdownHome
+            onItemClick={onMenuItemClick || setSelectedAction}
+          />
         </header>
 
         {title && (
@@ -248,9 +263,7 @@ export const MainLayout: FC<MainLayoutProps> = ({
           </div>
         )}
 
-        <main className="p-4">
-          {renderContent()}
-        </main>
+        <main className="p-4">{renderContent()}</main>
       </div>
     </div>
   );

@@ -141,7 +141,8 @@ export const SendProcessModal: FC<SendProcessModalProps> = ({ isOpen, onClose })
       <div className="bg-white rounded-lg p-6 w-96 max-w-lg">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Send process</h2>
-          <button
+          <button            
+            title="Close modal"
             onClick={onClose}
             title="Close" // Added title attribute for accessibility
             className="text-gray-500 hover:text-gray-700"
