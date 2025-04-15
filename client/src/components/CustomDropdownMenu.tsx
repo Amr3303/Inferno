@@ -1,10 +1,12 @@
-import { FC, useState, useEffect, useRef } from 'react';
+import { FC, useState, useEffect, useRef } from "react";
 
 interface SendOptionsDropdownProps {
   onItemClick: (action: string) => void;
 }
 
-export const SendOptionsDropdown: FC<SendOptionsDropdownProps> = ({ onItemClick }) => {
+export const SendOptionsDropdown: FC<SendOptionsDropdownProps> = ({
+  onItemClick,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -18,33 +20,34 @@ export const SendOptionsDropdown: FC<SendOptionsDropdownProps> = ({ onItemClick 
   };
 
   const closeDropdown = (e: MouseEvent) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+    if (
+      dropdownRef.current &&
+      !dropdownRef.current.contains(e.target as Node)
+    ) {
       setIsOpen(false);
     }
   };
 
   useEffect(() => {
     // Close dropdown when clicking outside of it
-    document.addEventListener('mousedown', closeDropdown);
+    document.addEventListener("mousedown", closeDropdown);
     return () => {
-      document.removeEventListener('mousedown', closeDropdown);
+      document.removeEventListener("mousedown", closeDropdown);
     };
   }, []);
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative inline-block" ref={dropdownRef}>
       <button
-  onClick={toggleDropdown}
-  className="p-1 border-2 border-gray-300 rounded-md bg-white text-gray-700"
-  aria-expanded={isOpen ? 'true' : 'false'}
-  aria-haspopup="true"
-  aria-controls="send-options-dropdown"
-  title="Select Action"
->
-  <span className="text-xl">☰</span>
-</button>
-
-
+        onClick={toggleDropdown}
+        className="p-1 border-2 border-gray-300 rounded-md bg-white text-gray-700"
+        aria-expanded={isOpen ? "true" : "false"}
+        aria-haspopup="true"
+        aria-controls="send-options-dropdown"
+        title="Select Action"
+      >
+        <span className="text-xl">☰</span>
+      </button>
 
       {isOpen && (
         <div
@@ -52,14 +55,14 @@ export const SendOptionsDropdown: FC<SendOptionsDropdownProps> = ({ onItemClick 
           className="absolute bottom-full mb-2 w-48 bg-white border border-gray-300 rounded-md shadow-lg"
         >
           <button
-            onClick={() => handleItemClick('Send Process')}
+            onClick={() => handleItemClick("Send Process")}
             className="w-full text-left px-4 py-2 hover:bg-gray-100"
             aria-label="Send Process"
           >
             Send Process
           </button>
           <button
-            onClick={() => handleItemClick('Send Query')}
+            onClick={() => handleItemClick("Send Query")}
             className="w-full text-left px-4 py-2 hover:bg-gray-100"
             aria-label="Send Query"
           >

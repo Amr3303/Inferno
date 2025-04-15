@@ -77,7 +77,6 @@ class MessageService {
     }
 
     // Save message to database
-    // In the sendMessage method, replace the websocket broadcast with:
     const savedMessage = await Message.create(messageObject);
 
     // Broadcast the message to all connected clients
@@ -95,7 +94,7 @@ class MessageService {
       }),
     };
 
-    // Broadcast using Pusher
+    // Broadcast using Pusher with the correct channel name
     await pusherService.broadcastMessage(
       `broadcast-${savedMessage.broadcast.toString()}`,  // Add the prefix here
       broadcastPayload
