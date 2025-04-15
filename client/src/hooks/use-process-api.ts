@@ -302,6 +302,7 @@ export const useProgressApi = () => {
   };
 
   return {
-    sendProgressMessage
+    sendProgressMessage,
+    isLoading
   };
 };

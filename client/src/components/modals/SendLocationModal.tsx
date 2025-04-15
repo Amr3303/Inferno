@@ -37,7 +37,7 @@ export const SendLocationModal: FC<SendLocationModalProps> = ({ isOpen, onClose 
     }
 
     // إرسال الموقع عبر الـ API
-    const success = await sendLocationMessage(locationContent, parseFloat(locationLat), parseFloat(locationLng), token);
+    const success = await sendLocationMessage(locationContent, parseFloat(locationLat), parseFloat(locationLng));
     if (success) {
       setLocationContent('');
       setLocationLat('');
