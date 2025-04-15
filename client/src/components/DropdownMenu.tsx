@@ -117,6 +117,7 @@ export const DropdownMenu: FC<DropdownMenuProps> = ({ onItemClick, isMenuBelow =
   return (
     <div className="relative" ref={menuRef}>
       <button
+        title="Open menu"
         onClick={toggleMenu}
         className="px-3 py-2 border border-gray-300 rounded-md"
       >

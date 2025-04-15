@@ -15,16 +15,20 @@ export const usePusher = ({ broadcastId, onMessage }: PusherHookProps) => {
       cluster: "eu",
     });
 
-    // Subscribe to the broadcast channel
-    const channel = pusherRef.current.subscribe(`broadcast-${broadcastId}`);
+    // Subscribe to the specific broadcast channel
+    const channelName = `broadcast-${broadcastId}`;
+    const channel = pusherRef.current.subscribe(channelName);
 
     // Listen for new messages
-    channel.bind("new-message", onMessage);
+    channel.bind("new-message", (data: any) => {
+      // Ensure we're passing the message data correctly
+      onMessage(data);
+    });
 
     return () => {
       if (pusherRef.current) {
         channel.unbind("new-message");
-        pusherRef.current.unsubscribe(`broadcast-${broadcastId}`);
+        pusherRef.current.unsubscribe(channelName);
       }
     };
   }, [broadcastId, onMessage]);

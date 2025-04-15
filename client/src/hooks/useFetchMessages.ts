@@ -3,8 +3,7 @@ import Pusher from 'pusher-js';
 
 // Pusher Configuration
 const pusher = new Pusher('7cc17b8ffe1acd631dea', {
-  cluster: 'eu',
-  authEndpoint: 'https://your-auth-endpoint.com/pusher/auth', // Set up the authentication endpoint
+  cluster: 'eu'
 });
 // Define the Message interface
 export interface Message {
