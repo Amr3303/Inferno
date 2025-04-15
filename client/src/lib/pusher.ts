@@ -1,27 +1,38 @@
 // src/lib/pusher-client.ts
 import Pusher from 'pusher-js';
 
-// Configure Pusher with your app key and cluster
 const PUSHER_KEY = '7cc17b8ffe1acd631dea';
 const PUSHER_CLUSTER = 'eu';
 
-// Private variable to hold the Pusher instance
 let pusherInstance: Pusher | null = null;
 
-// Function to get or create the Pusher instance
 export const getPusherInstance = (): Pusher => {
   if (!pusherInstance) {
+    console.log('Initializing new Pusher instance...');
     pusherInstance = new Pusher(PUSHER_KEY, {
       cluster: PUSHER_CLUSTER,
       forceTLS: true,
+    });
+    
+    // Add global error handlers
+    pusherInstance.connection.bind('error', (err: any) => {
+      console.error('Pusher connection error:', err);
+    });
+
+    pusherInstance.connection.bind('connected', () => {
+      console.log('✅ Pusher connected successfully');
+    });
+
+    pusherInstance.connection.bind('disconnected', () => {
+      console.log('❌ Pusher disconnected');
     });
   }
   return pusherInstance;
 };
 
-// Function to clean up the Pusher instance
-export const cleanupPusher = (): void => {
+export const cleanupPusher = () => {
   if (pusherInstance) {
+    console.log('Cleaning up Pusher instance...');
     pusherInstance.disconnect();
     pusherInstance = null;
   }

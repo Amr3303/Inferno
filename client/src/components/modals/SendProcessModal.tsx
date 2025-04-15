@@ -106,7 +106,7 @@ interface SendProcessModalProps {
   setProcessName: React.Dispatch<React.SetStateAction<string>>;
   processProgress: number;
   setProcessProgress: React.Dispatch<React.SetStateAction<number>>;
-  // onSubmit: () => void;
+  onSubmit: () => void;
 }
 
 export const SendProcessModal: FC<SendProcessModalProps> = ({ isOpen, onClose }) => {
@@ -116,15 +116,6 @@ export const SendProcessModal: FC<SendProcessModalProps> = ({ isOpen, onClose })
   const { sendProgressMessage, isLoading } = useProgressApi(); // ← استخدام hook التقدم
 
   const handleSendProcess = async () => {
-    if (!processName.trim() || processProgress < 0 || processProgress > 100) {
-      toast({
-        title: "خطأ",
-        description: "الرجاء إدخال اسم عملية صحيح ونسبة تقدم بين 0 و 100",
-        variant: "destructive"
-      });
-      return;
-    }
-
     const success = await sendProgressMessage(processName, processProgress);
     if (success) {
       setProcessName('');
@@ -133,7 +124,6 @@ export const SendProcessModal: FC<SendProcessModalProps> = ({ isOpen, onClose })
     }
   };
 
-
   if (!isOpen) return null;
 
   return (
@@ -141,7 +131,7 @@ export const SendProcessModal: FC<SendProcessModalProps> = ({ isOpen, onClose })
       <div className="bg-white rounded-lg p-6 w-96 max-w-lg">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Send process</h2>
-          <button            
+          <button
             title="Close modal"
             onClick={onClose}
             title="Close" // Added title attribute for accessibility
@@ -154,21 +144,21 @@ export const SendProcessModal: FC<SendProcessModalProps> = ({ isOpen, onClose })
         {/* Process Name */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Process name          
+            اسم العملية
           </label>
           <input
             type="text"
             value={processName}
             onChange={(e) => setProcessName(e.target.value)}
             className="p-3 border border-gray-300 rounded-md w-full"
-            placeholder="Enter the process name."
+            placeholder="أدخل اسم العملية"
           />
         </div>
 
         {/* Process Progress */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Progress rate %
+            نسبة التقدم %
           </label>
           <input
             type="number"
@@ -177,7 +167,7 @@ export const SendProcessModal: FC<SendProcessModalProps> = ({ isOpen, onClose })
             value={processProgress}
             onChange={(e) => setProcessProgress(parseInt(e.target.value) || 0)}
             className="p-3 border border-gray-300 rounded-md w-full"
-            placeholder="Enter the progress percentage."
+            placeholder="أدخل نسبة التقدم"
           />
         </div>
 
@@ -187,7 +177,7 @@ export const SendProcessModal: FC<SendProcessModalProps> = ({ isOpen, onClose })
             disabled={isLoading}
             className={`px-4 py-2 text-white rounded-md ${isLoading ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'}`}
           >
-            {isLoading ? 'Sending...' : 'Sending'}
+            {isLoading ? 'جاري الإرسال...' : 'إرسال'}
           </button>
         </div>
       </div>

@@ -1,4 +1,3 @@
-
 // import { Toaster } from "@/components/ui/toaster";
 // import { Toaster as Sonner } from "@/components/ui/sonner";
 // import { TooltipProvider } from "@/components/ui/tooltip";
@@ -63,6 +62,7 @@ import { LocationPage } from "./pages/broadcast/LocationPage";
 import { ProcessBarPage } from "./pages/broadcast/ProcessBarPage";
 import { QueryPage } from "./pages/broadcast/QueryPage";
 import NotFound from "./pages/NotFound";
+import ErrorBoundary from "./components/ErrorBoundary";
 import { getPusherInstance, cleanupPusher } from "./lib/pusher";
 
 const queryClient = new QueryClient();
@@ -72,7 +72,7 @@ const App = () => {
   useEffect(() => {
     // Get the Pusher instance (this will initialize it if not already initialized)
     getPusherInstance();
-    
+
     // Clean up Pusher when the app unmounts
     return () => {
       cleanupPusher();
@@ -92,7 +92,14 @@ const App = () => {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/broadcast/create" element={<CreateBroadcastPage />} />
             <Route path="/broadcast/join" element={<JoinBroadcastPage />} />
-            <Route path="/broadcast/messages" element={<MessagesPage />} />
+            <Route
+              path="/broadcast/messages"
+              element={
+                <ErrorBoundary>
+                  <MessagesPage />
+                </ErrorBoundary>
+              }
+            />
             <Route path="/broadcast/text" element={<TextPage />} />
             <Route path="/broadcast/location" element={<LocationPage />} />
             <Route path="/broadcast/process-bar" element={<ProcessBarPage />} />

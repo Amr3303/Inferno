@@ -19,8 +19,8 @@ export const SendLocationModal: FC<SendLocationModalProps> = ({ isOpen, onClose 
   const handleSendLocation = async () => {
     if (!locationContent.trim() || !locationLat.trim() || !locationLng.trim()) {
       toast({
-        title: "error",
-        description: "Please fill in all fields.",
+        title: "خطأ",
+        description: "الرجاء ملء جميع الحقول",
         variant: "destructive"
       });
       return;
@@ -29,15 +29,15 @@ export const SendLocationModal: FC<SendLocationModalProps> = ({ isOpen, onClose 
     const token = localStorage.getItem('token');
     if (!token) {
       toast({
-        title: "error",
-        description: "Please log in first.",
+        title: "خطأ",
+        description: "الرجاء تسجيل الدخول أولاً",
         variant: "destructive"
       });
       return;
     }
 
     // إرسال الموقع عبر الـ API
-    const success = await sendLocationMessage(locationContent, parseFloat(locationLat), parseFloat(locationLng));
+    const success = await sendLocationMessage(locationContent, parseFloat(locationLat), parseFloat(locationLng), token);
     if (success) {
       setLocationContent('');
       setLocationLat('');
@@ -54,6 +54,7 @@ export const SendLocationModal: FC<SendLocationModalProps> = ({ isOpen, onClose 
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">إرسال موقع</h2>
           <button
+            title="Close modal"
             onClick={onClose}
             title="Close" // Added title attribute for accessibility
             className="text-gray-500 hover:text-gray-700"
@@ -65,42 +66,42 @@ export const SendLocationModal: FC<SendLocationModalProps> = ({ isOpen, onClose 
         {/* Location Content */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Description
+            الوصف
           </label>
           <input
             type="text"
             value={locationContent}
             onChange={(e) => setLocationContent(e.target.value)}
             className="p-3 border border-gray-300 rounded-md w-full"
-            placeholder="Example: Emergency Site"
+            placeholder="مثال: موقع طارئ"
           />
         </div>
 
         {/* Latitude */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            latitude
+            خط العرض
           </label>
           <input
             type="number"
             value={locationLat}
             onChange={(e) => setLocationLat(e.target.value)}
             className="p-3 border border-gray-300 rounded-md w-full"
-            placeholder="Example: 40.7128"
+            placeholder="مثال: 40.7128"
           />
         </div>
 
         {/* Longitude */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Longitude
+            خط الطول
           </label>
           <input
             type="number"
             value={locationLng}
             onChange={(e) => setLocationLng(e.target.value)}
             className="p-3 border border-gray-300 rounded-md w-full"
-            placeholder="Example: -74.0060"
+            placeholder="مثال: -74.0060"
           />
         </div>
 
@@ -110,7 +111,7 @@ export const SendLocationModal: FC<SendLocationModalProps> = ({ isOpen, onClose 
             className={`px-4 py-2 ${isLoading ? 'bg-gray-400' : 'bg-green-500'} text-white rounded-md hover:bg-green-600`}
             disabled={isLoading} // تعطيل الزر أثناء تحميل
           >
-            {isLoading ? 'Sending...' : 'Sending'}
+            {isLoading ? 'جاري الإرسال...' : 'إرسال'}
           </button>
         </div>
 
@@ -120,10 +121,10 @@ export const SendLocationModal: FC<SendLocationModalProps> = ({ isOpen, onClose 
             onClick={() => window.open("https://www.google.com/maps", "_blank")}
             className="text-blue-600 hover:underline text-sm"
           >
-            🌍 Select from Google Maps
+            🌍 اختيار من خرائط جوجل
           </button>
           <p className="text-xs text-gray-500 mt-1">
-            Right-click on any point on the map, and choose<strong>"What is this place?"</strong>, then copy the coordinates.
+            انقر بزر الماوس الأيمن على أي نقطة في الخريطة، واختر <strong>"ما هذا المكان؟"</strong>، ثم انسخ الإحداثيات.
           </p>
         </div>
 
@@ -137,23 +138,23 @@ export const SendLocationModal: FC<SendLocationModalProps> = ({ isOpen, onClose 
                 if (match) {
                   setLocationLat(match[1]);
                   setLocationLng(match[2]);
-                  toast({ title: "Coordinates pasted!" });
+                  toast({ title: "تم لصق الإحداثيات!" });
                 } else {
-                  toast({
-                    title: "Invalid format",
-                    description: "Make sure to copy the coordinates in the format: 40.7128, -74.0060"
+                  toast({ 
+                    title: "تنسيق غير صالح", 
+                    description: "تأكد من نسخ الإحداثيات بالشكل: 40.7128, -74.0060" 
                   });
                 }
               } catch (error) {
-                toast({
-                  title: "error",
-                  description: "The clipboard cannot be accessed"
+                toast({ 
+                  title: "خطأ", 
+                  description: "لا يمكن الوصول إلى الحافظة" 
                 });
               }
             }}
             className="text-sm text-green-600 hover:underline"
           >
-            📋 Paste coordinates
+            📋 لصق الإحداثيات
           </button>
         </div>
       </div>
