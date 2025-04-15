@@ -165,16 +165,13 @@ export const MainLayout: FC<MainLayoutProps> = ({
     const fetchBroadcasts = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(
-          "/api/v1/broadcasts/my",
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const response = await fetch("/api/v1/broadcasts/my", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
 
         const data = await response.json();
         if (data.success) {
@@ -200,6 +197,11 @@ export const MainLayout: FC<MainLayoutProps> = ({
     setSelectedBroadcastId(id);
     setSelectedUserRole(role);
     setSelectedAction(id);
+
+    // Force a re-render by updating localStorage
+    const event = new Event("storage");
+    window.dispatchEvent(event);
+
     if (onMenuItemClick) {
       onMenuItemClick(id);
     }

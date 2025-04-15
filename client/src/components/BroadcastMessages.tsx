@@ -53,27 +53,27 @@ const BroadcastMessages = ({ broadcastId }: MessageProps) => {
 
   // Set up Pusher subscription
   useEffect(() => {
-    // Initialize Pusher with your app key
-    const pusher = new Pusher(import.meta.env.VITE_PUSHER_KEY, {
+    // Initialize Pusher
+    const pusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
       cluster: import.meta.env.VITE_PUSHER_CLUSTER,
     });
 
-    if (!broadcastId) return;
+    if (broadcastId) {
+      // Subscribe to the broadcast channel
+      const channel = pusher.subscribe(`broadcast-${broadcastId}`);
 
-    // Subscribe to the broadcast channel
-    const channel = pusher.subscribe(`broadcast-${broadcastId}`);
+      // Bind to new message events
+      channel.bind("new-message", (newMessage: Message) => {
+        setMessages((prevMessages) => [newMessage, ...prevMessages]);
+      });
 
-    // Listen for new messages
-    channel.bind("new-message", (newMessage: Message) => {
-      setMessages((prevMessages) => [newMessage, ...prevMessages]);
-    });
-
-    // Clean up on unmount
-    return () => {
-      channel.unbind_all();
-      channel.unsubscribe();
-      pusher.disconnect();
-    };
+      // Cleanup on unmount
+      return () => {
+        channel.unbind_all();
+        channel.unsubscribe();
+        pusher.disconnect();
+      };
+    }
   }, [broadcastId]);
 
   const renderMessageContent = (message: Message) => {
