@@ -77,10 +77,34 @@ const joinBroadcast = async (req, res) => {
   });
 };
 
+const getMyBroadcasts = async (req, res) => {
+  const { userId } = req.user;
+
+  const result = await broadcastService.getMyBroadcasts(userId);
+
+  res.status(StatusCodes.OK).json({
+    success: true,
+    message: "My broadcasts retrieved successfully.",
+    length: result.length,
+    data: result,
+  });
+};
+
+const deleteAllBroadcasts = async (req, res) => {
+  const result = await broadcastService.deleteAllBroadcasts();
+
+  res.status(StatusCodes.OK).json({
+    success: true,
+    message: "All broadcasts deleted successfully.",
+    data: result,
+  });
+}
 module.exports = {
   createBroadcast,
   getAllBroadcasts,
   getUnjoinedBroadcasts,
   getSingleBroadcast,
   joinBroadcast,
+  getMyBroadcasts,
+  deleteAllBroadcasts,
 };

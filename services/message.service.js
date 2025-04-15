@@ -1,6 +1,7 @@
 const Message = require("../models/Message");
 const Broadcast = require("../models/Broadcast");
 const CustomAPIError = require("../errors");
+const websocketService = require("./websocket.service");
 
 class MessageService {
   async sendMessage(messageData) {
@@ -75,13 +76,57 @@ class MessageService {
       messageObject.progress = messageData.progress;
     }
 
-    return await Message.create(messageObject);
+    // Save message to database
+    const savedMessage = await Message.create(messageObject);
+    
+    // Broadcast the message to all connected clients
+    const broadcastPayload = {
+      type: savedMessage.type,
+      content: savedMessage.content,
+      messageId: savedMessage._id,
+      createdBy: savedMessage.createdBy,
+      createdAt: savedMessage.createdAt,
+    };
+    
+    // Add type-specific fields to the broadcast payload
+    if (savedMessage.type === 'location') {
+      broadcastPayload.coordinates = savedMessage.coordinates;
+    }
+    
+    if (savedMessage.type === 'progress') {
+      broadcastPayload.progress = savedMessage.progress;
+    }
+    
+    // Broadcast the message
+    websocketService.broadcastMessage(savedMessage.broadcast.toString(), broadcastPayload);
+    
+    return savedMessage;
   }
 
-  async getMessages(broadcastId) {
-    return await Message.find({ broadcast: broadcastId })
+  async getMessages(broadcastId, queryOptions = {}) {
+    const { type, page = 1, limit = 10, sort = '-createdAt' } = queryOptions;
+    
+    const query = { broadcast: broadcastId };
+    if (type) {
+      query.type = type;
+    }
+
+    const skip = (page - 1) * limit;
+
+    const messages = await Message.find(query)
       .populate("createdBy", "name email")
-      .sort({ createdAt: -1 });
+      .sort(sort)
+      .skip(skip)
+      .limit(limit);
+
+    const totalMessages = await Message.countDocuments(query);
+
+    return {
+      messages,
+      currentPage: page,
+      totalPages: Math.ceil(totalMessages / limit),
+      totalMessages
+    };
   }
 
   async getMessage(messageId) {
@@ -102,5 +147,3 @@ class MessageService {
     return await Message.findByIdAndDelete(messageId);
   }
 }
-
-module.exports = new MessageService();

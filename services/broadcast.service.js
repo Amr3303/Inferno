@@ -36,18 +36,13 @@ class BroadcastService {
       description: broadcast.description,
       createdBy: broadcast.createdBy,
       createdAt: broadcast.createdAt,
+      role: "transmitter",
+      agents: [],
     };
   }
 
   async getAllBroadcasts() {
     const broadcasts = await Broadcast.find({});
-    // return broadcasts.map((broadcast) => ({
-    //   id: broadcast._id,
-    //   name: broadcast.name,
-    //   description: broadcast.description,
-    //   createdBy: broadcast.createdBy,
-    //   createdAt: broadcast.createdAt,
-    // }));
     return broadcasts;
   }
 
@@ -99,6 +94,40 @@ class BroadcastService {
       createdAt: broadcast.createdAt,
       agents: broadcast.agents,
     };
+  }
+
+  async getMyBroadcasts(userId) {
+    if (!userId) {
+      throw new BadRequestError("User ID is required");
+    }
+
+    // Find broadcasts where user is either creator or participant
+    const broadcasts = await Broadcast.find({
+      $or: [{ createdBy: userId }, { agents: userId }],
+    }).populate("createdBy", "name email");
+
+    return broadcasts.map((broadcast) => {
+      const baseResponse = {
+        id: broadcast._id,
+        name: broadcast.name,
+        description: broadcast.description,
+        role:
+          broadcast.createdBy._id.toString() === userId
+            ? "transmitter"
+            : "agent",
+      };
+
+      // Only include agents array if user is the transmitter
+      if (broadcast.createdBy._id.toString() === userId) {
+        baseResponse.agents = broadcast.agents;
+      }
+
+      return baseResponse;
+    });
+  }
+
+  deleteAllBroadcasts() {
+    return Broadcast.deleteMany({});
   }
 }
 
