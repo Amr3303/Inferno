@@ -142,7 +142,7 @@ class BroadcastService {
     return {
       agents: broadcast.agents.map(agent => ({
         id: agent._id,
-        name: agent.name,
+        username: agent.name,
         email: agent.email
       }))
     };
