@@ -126,6 +126,28 @@ class BroadcastService {
     });
   }
 
+  async getBroadcastAgents(broadcastId) {
+    if (!broadcastId) {
+      throw new BadRequestError("Broadcast ID is required");
+    }
+
+    const broadcast = await Broadcast.findById(broadcastId)
+      .populate('agents', 'name email')
+      .select('agents');
+
+    if (!broadcast) {
+      throw new BadRequestError("Broadcast not found");
+    }
+
+    return {
+      agents: broadcast.agents.map(agent => ({
+        id: agent._id,
+        name: agent.name,
+        email: agent.email
+      }))
+    };
+  }
+
   deleteAllBroadcasts() {
     return Broadcast.deleteMany({});
   }

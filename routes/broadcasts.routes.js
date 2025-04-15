@@ -10,6 +10,7 @@ const {
   joinBroadcast,
   getMyBroadcasts,
   deleteAllBroadcasts,
+  getBroadcastAgents,
 } = require("../controllers/broadcast.controller");
 
 router.post("/", auth, createBroadcast);
@@ -19,5 +20,6 @@ router.get("/my", auth, getMyBroadcasts);
 router.get("/:id", auth, getSingleBroadcast);
 router.post("/:id/join", auth, joinBroadcast);
 router.delete("/deleteAllBroadcasts", deleteAllBroadcasts);
+router.get("/:broadcastId/agents", auth, getBroadcastAgents);
 
 module.exports = router;

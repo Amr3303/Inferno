@@ -98,7 +98,21 @@ const deleteAllBroadcasts = async (req, res) => {
     message: "All broadcasts deleted successfully.",
     data: result,
   });
-}
+};
+
+const getBroadcastAgents = async (req, res) => {
+  const { broadcastId } = req.params;
+  const result = await broadcastService.getBroadcastAgents(broadcastId);
+
+  res.status(StatusCodes.OK).json({
+    success: true,
+    message: "Broadcast agents retrieved successfully.",
+    length: result.agents.length,
+    data: result.agents,
+  });
+};
+
+// Add to exports
 module.exports = {
   createBroadcast,
   getAllBroadcasts,
@@ -107,4 +121,5 @@ module.exports = {
   joinBroadcast,
   getMyBroadcasts,
   deleteAllBroadcasts,
+  getBroadcastAgents,
 };
