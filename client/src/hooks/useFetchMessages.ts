@@ -596,6 +596,145 @@
 //   };
 // };
 //--------------------------------------------------------------------------------------
+// import { useState, useEffect, useCallback } from 'react';
+// import getPusherInstance from '../lib/pusher';
+
+// export interface Message {
+//   id: string;
+//   type: 'text' | 'location' | 'progress' | 'query';
+//   content: string;
+//   timestamp?: string;
+//   createdAt?: string;
+// }
+
+// export const useFetchMessages = () => {
+//   const [messages, setMessages] = useState<Message[]>([]);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState<string | null>(null);
+//   // const [broadcastId, setBroadcastId] = useState(localStorage.getItem('selectedBroadcastId'));
+
+
+//   const selectedBroadcastId = localStorage.getItem('selectedBroadcastId');
+//   const token = localStorage.getItem("token");
+
+//   const API_ENDPOINT = `https://inferno-neon.vercel.app/api/v1/broadcasts/${selectedBroadcastId}/messages`;
+
+//   const fetchMessages = useCallback(async () => {
+//     if (!selectedBroadcastId || !token) {
+//       setError('Missing broadcastId or token');
+//       return;
+//     }
+
+//     setLoading(true);
+//     setError(null);
+
+//     try {
+//       const response = await fetch(API_ENDPOINT, {
+//         method: 'GET',
+//         headers: {
+//           'Authorization': `Bearer ${token}`,
+//           'Content-Type': 'application/json',
+//         },
+//       });
+//       console.log("response",response)
+//       if (!response.ok) {
+//         throw new Error(`Failed to fetch messages: ${response.status}`);
+//       }
+
+//       const data = await response.json();
+//       const formattedMessages = (data.messages || []).map((msg: any) => ({
+//         ...msg,
+//         id: msg._id || msg.id,
+//       }));
+//       console.log("response",formattedMessages)
+
+//       setMessages(formattedMessages);
+//     } catch (error) {
+//       setError(error instanceof Error ? error.message : 'Unknown error occurred');
+//     } finally {
+//       setLoading(false);
+//     }
+//   }, [selectedBroadcastId, token, API_ENDPOINT]);
+
+//   // Set up Pusher subscription
+//   useEffect(() => {
+//     if (!selectedBroadcastId) return;
+
+//     // Initialize fetching of existing messages
+//     fetchMessages();
+    
+//     // Get the Pusher instance
+//     const pusher = getPusherInstance();
+    
+//     // Set up Pusher channel subscription
+//     const channelName = `broadcast-${selectedBroadcastId}`;
+//     const channel = pusher.subscribe(channelName);
+    
+//     // // Listen for new message events
+//     // const handleNewMessage = (newMessage: any) => {
+//     //   console.log('New message received:', newMessage);
+      
+//     //   // Format the incoming message to match your expected format
+//     //   const formattedMessage = {
+//     //     ...newMessage,
+//     //     id: newMessage._id || newMessage.id,
+//     //   };
+      
+//     //   // // Update messages state by adding the new message
+//     //   // setMessages(prevMessages => {
+//     //   //   // Check if message already exists to prevent duplicates
+//     //   //   const messageExists = prevMessages.some(msg => msg.id === formattedMessage.id);
+//     //   //   if (messageExists) return prevMessages;
+        
+//     //   //   // Add new message to the beginning of the array
+//     //   //   return [formattedMessage, ...prevMessages];
+//     //   // });
+//     //   // إضافة الرسالة الجديدة
+//     //   setMessages(prevMessages => {
+//     //     const messageExists = prevMessages.some(msg => msg.id === formattedMessage.id);
+//     //     if (messageExists) return prevMessages;
+
+//     //     return [formattedMessage, ...prevMessages];
+//     //   });
+//     // };
+//     const handleNewMessage = (newMessage: any) => {
+//       console.log('New message received:', newMessage);
+//       const formattedMessage = {
+//         ...newMessage,
+//         id: newMessage._id || newMessage.id,
+//       };
+    
+//       // إضافة الرسالة الجديدة إلى قائمة الرسائل
+//       setMessages(prevMessages => {
+//         const messageExists = prevMessages.some(msg => msg.id === formattedMessage.id);
+//         if (messageExists) return prevMessages;
+//         return [formattedMessage, ...prevMessages];
+//       });
+//     };
+    
+    
+    
+//     channel.bind('new-message', handleNewMessage);
+//     channel.bind_global((eventName, data) => {
+//         console.log('Received event:', eventName, data);
+//       });
+      
+
+//     // Cleanup function
+//     return () => {
+//       channel.unbind('new-message', handleNewMessage);
+//       pusher.unsubscribe(channelName);
+//     };
+//   }, [selectedBroadcastId, fetchMessages]);
+
+//   return {
+//     messages,
+//     loading,
+//     error,
+//     fetchMessages,
+//   };
+// };
+//-----------------------------------------------------
 import { useState, useEffect, useCallback } from 'react';
 import getPusherInstance from '../lib/pusher';
 
@@ -611,11 +750,9 @@ export const useFetchMessages = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // const [broadcastId, setBroadcastId] = useState(localStorage.getItem('selectedBroadcastId'));
-
 
   const selectedBroadcastId = localStorage.getItem('selectedBroadcastId');
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem('token');
 
   const API_ENDPOINT = `https://inferno-neon.vercel.app/api/v1/broadcasts/${selectedBroadcastId}/messages`;
 
@@ -636,7 +773,7 @@ export const useFetchMessages = () => {
           'Content-Type': 'application/json',
         },
       });
-      console.log("response",response)
+
       if (!response.ok) {
         throw new Error(`Failed to fetch messages: ${response.status}`);
       }
@@ -646,7 +783,6 @@ export const useFetchMessages = () => {
         ...msg,
         id: msg._id || msg.id,
       }));
-      console.log("response",formattedMessages)
 
       setMessages(formattedMessages);
     } catch (error) {
@@ -656,50 +792,45 @@ export const useFetchMessages = () => {
     }
   }, [selectedBroadcastId, token, API_ENDPOINT]);
 
-  // Set up Pusher subscription
-  useEffect(() => {
-    if (!selectedBroadcastId) return;
-
-    // Initialize fetching of existing messages
-    fetchMessages();
-    
-    // Get the Pusher instance
-    const pusher = getPusherInstance();
-    
-    // Set up Pusher channel subscription
-    const channelName = `broadcast-${selectedBroadcastId}`;
-    const channel = pusher.subscribe(channelName);
-    
-    // Listen for new message events
-    const handleNewMessage = (newMessage: any) => {
-      console.log('New message received:', newMessage);
-      
-      // Format the incoming message to match your expected format
+  // Function to update the UI when a new message is received
+  const updateUI = (newMessage: any) => {
+    setMessages(prevMessages => {
       const formattedMessage = {
         ...newMessage,
         id: newMessage._id || newMessage.id,
       };
       
-      // Update messages state by adding the new message
-      setMessages(prevMessages => {
-        // Check if message already exists to prevent duplicates
-        const messageExists = prevMessages.some(msg => msg.id === formattedMessage.id);
-        if (messageExists) return prevMessages;
-        
-        // Add new message to the beginning of the array
-        return [formattedMessage, ...prevMessages];
-      });
-    };
-    
-    channel.bind('new-message', handleNewMessage);
-    channel.bind_global((eventName, data) => {
-        console.log('Received event:', eventName, data);
-      });
-      
+      // Avoid duplicates
+      if (prevMessages.some(msg => msg.id === formattedMessage.id)) {
+        return prevMessages;
+      }
 
-    // Cleanup function
+      return [formattedMessage, ...prevMessages];
+    });
+  };
+
+  useEffect(() => {
+    if (!selectedBroadcastId) return;
+
+    // Fetch existing messages
+    fetchMessages();
+
+    // Set up Pusher
+    const pusher = getPusherInstance();
+
+    // Subscribe to the channel
+    const channelName = `broadcast-${selectedBroadcastId}`;
+    const channel = pusher.subscribe(channelName);
+
+    // Handle new messages received from Pusher
+    channel.bind('new-message', (newMessage: any) => {
+      console.log('New message received:', newMessage);
+      updateUI(newMessage); // Call updateUI to update the messages state
+    });
+
+    // Cleanup on unmount
     return () => {
-      channel.unbind('new-message', handleNewMessage);
+      channel.unbind('new-message');
       pusher.unsubscribe(channelName);
     };
   }, [selectedBroadcastId, fetchMessages]);
@@ -711,3 +842,4 @@ export const useFetchMessages = () => {
     fetchMessages,
   };
 };
+

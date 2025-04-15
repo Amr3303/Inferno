@@ -14,6 +14,7 @@ import { SendLocationModal } from '../../components/modals/SendLocationModal';
 import { useMessageApi } from '../../hooks/use-message-api';
 import { useFetchMessages } from '../../hooks/useFetchMessages';
 import { useFetchMessagesType } from '../../hooks/useFetchMessagesType';
+import getPusherInstance from '../../lib/pusher';  // تأكد من المسار الصحيح
 
 // Mock agents data
 const mockAgents = [
@@ -215,6 +216,161 @@ export const MessagesPage: FC = () => {
     }
   };
 
+ // هنا نقوم بتعريف المتغيرات التي تحتاجها
+const MessagesView = () => {
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [loadingType, setLoadingType] = useState(false);
+  const [messagesType, setMessagesType] = useState([]);
+  const [currentView, setCurrentView] = useState("View Message"); // تبدأ على View Message أو يمكن تغييره حسب اختيارك
+  
+  // دالة لاشتراك Pusher
+  useEffect(() => {
+    const pusher = getPusherInstance();  // تهيئة Pusher
+    const channelName = `broadcast-${selectedBroadcastId}`;  // استخدام معرف القناة الخاصة بك
+    const channel = pusher.subscribe(channelName);
+
+    // الاستماع للرسائل الجديدة من Pusher
+    channel.bind('new-message', (newMessage) => {
+      console.log('New message received:', newMessage);
+      setMessages(prevMessages => {
+        const formattedMessage = {
+          ...newMessage,
+          id: newMessage._id || newMessage.id,
+        };
+        if (prevMessages.some(msg => msg.id === formattedMessage.id)) {
+          return prevMessages;
+        }
+        return [formattedMessage, ...prevMessages];
+      });
+    });
+
+    // نظافة الاشتراك عند الخروج من الـ component
+    return () => {
+      channel.unbind('new-message');
+      pusher.unsubscribe(channelName);
+    };
+  }, []);
+
+  // Render content based on current view
+  const renderContent = () => {
+    switch (currentView) {
+      case "View Message":
+        return (
+          <div className="mb-8">
+            {error && (
+              <div className="p-4 mb-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                Error: {error}
+              </div>
+            )}
+            {loading ? (
+              <div className="flex justify-center items-center py-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <span className="ml-2">Loading messages...</span>
+              </div>
+            ) : messages.length > 0 ? (
+              <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+                {messages.map((msg, index) => {
+                  switch (msg.type) {
+                    case "text":
+                      return (
+                        <MessageCard key={index} onOptionsClick={() => { }}>
+                          <p className="text-sm leading-relaxed">{msg.content}</p>
+                        </MessageCard>
+                      );
+                    case "location":
+                      return (
+                        <LocationCard key={index} coordinates={msg.content} onOptionsClick={() => { }} />
+                      );
+                    case "progress":
+                      return (
+                        <ProgressBar key={index} progress={parseInt(msg.content)} onOptionsClick={() => { }} />
+                      );
+                    case "query":
+                      return (
+                        <MessageCard key={index} onOptionsClick={() => { }}>
+                          <h3 className="font-bold mb-2">Query</h3>
+                          <p className="text-sm leading-relaxed">
+                            {typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)}
+                          </p>
+                        </MessageCard>
+                      );
+                    default:
+                      return null;
+                  }
+                })}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-4">No messages found.</p>
+            )}
+          </div>
+        );
+      case "View Text":
+      case "View Location":
+      case "View Process":
+      case "View Query":
+        return (
+          <div className="mb-8">
+            {error && (
+              <div className="p-4 mb-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                Error: {error}
+              </div>
+            )}
+            {loadingType ? (
+              <div className="flex justify-center items-center py-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <span className="ml-2">Loading {currentView.replace("View ", "").toLowerCase()} messages...</span>
+              </div>
+            ) : messagesType.length > 0 ? (
+              <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+                {messagesType.map((msg, index) => {
+                  switch (currentView) {
+                    case "View Text":
+                      return (
+                        <MessageCard key={index} onOptionsClick={() => { }}>
+                          <p className="text-sm leading-relaxed">{msg.content}</p>
+                        </MessageCard>
+                      );
+                    case "View Location":
+                      return (
+                        <LocationCard key={index} coordinates={msg.content} onOptionsClick={() => { }} />
+                      );
+                    case "View Process":
+                      return (
+                        <ProgressBar key={index} progress={parseInt(msg.content)} onOptionsClick={() => { }} />
+                      );
+                    case "View Query":
+                      return (
+                        <MessageCard key={index} onOptionsClick={() => { }}>
+                          <h3 className="font-bold mb-2">Query</h3>
+                          <p className="text-sm leading-relaxed">
+                            {typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)}
+                          </p>
+                        </MessageCard>
+                      );
+                    default:
+                      return null;
+                  }
+                })}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-4">No {currentView.replace("View ", "").toLowerCase()} messages found.</p>
+            )}
+          </div>
+        );
+      default:
+        return (
+          <div className="mb-8">
+            <p className="text-center text-gray-500">Select a view from the menu</p>
+          </div>
+        );
+    }
+  };
+
+  return <div>{renderContent()}</div>;
+};
+
   // Render content based on current view
   const renderContent = () => {
     switch (currentView) {
@@ -349,7 +505,8 @@ export const MessagesPage: FC = () => {
         </div>
       )}
 
-      {renderContent()}
+      {renderContent()}      
+      {MessagesView()}
 
       {selectedUserRole === 'transmitter' && (
         <div className="fixed bottom-4 left-4 right-4 flex justify-end items-center space-x-2">

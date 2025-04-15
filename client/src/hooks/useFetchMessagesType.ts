@@ -140,13 +140,13 @@ if (!token) {
       console.log("re", response);
 
       const data = await response.json();
-      console.log("data:", data);
+      // console.log("data:", data);
       const formattedMessages = (data.messages || []).map((msg: any) => ({
         ...msg,
         id: msg._id || msg.id,
       }));
-      console.log("formattedMessages:", JSON.stringify(formattedMessages, null, 2));
-      console.log("response type",formattedMessages)
+      // console.log("formattedMessages:", JSON.stringify(formattedMessages, null, 2));
+      // console.log("response type",formattedMessages)
 
 
       setMessagesType(formattedMessages);
