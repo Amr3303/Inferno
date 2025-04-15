@@ -38,8 +38,6 @@ class BroadcastService {
       createdAt: broadcast.createdAt,
       role: "transmitter",
       agents: [],
-      role: "transmitter",
-      agents: [],
     };
   }
 
@@ -126,28 +124,6 @@ class BroadcastService {
 
       return baseResponse;
     });
-  }
-
-  async getBroadcastAgents(broadcastId) {
-    if (!broadcastId) {
-      throw new BadRequestError("Broadcast ID is required");
-    }
-
-    const broadcast = await Broadcast.findById(broadcastId)
-      .populate('agents', 'name email')
-      .select('agents');
-
-    if (!broadcast) {
-      throw new BadRequestError("Broadcast not found");
-    }
-
-    return {
-      agents: broadcast.agents.map(agent => ({
-        id: agent._id,
-        username: agent.name,
-        email: agent.email
-      }))
-    };
   }
 
   deleteAllBroadcasts() {

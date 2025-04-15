@@ -32,7 +32,7 @@ export const useLocationApi = () => {
   const token = localStorage.getItem('token'); // على سبيل المثال من الـ localStorage
 
   // دالة لإرسال رسالة الموقع
-  const sendLocationMessage = async (locationContent: string, lat: number, lng: number, token: string): Promise<boolean> => {
+  const sendLocationMessage = async (locationContent: string, lat: number, lng: number): Promise<boolean> => {
     if (!locationContent.trim()) {
       toast({
         title: "خطأ",

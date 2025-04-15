@@ -97,7 +97,7 @@ class MessageService {
 
     // Broadcast using Pusher
     await pusherService.broadcastMessage(
-      savedMessage.broadcast.toString(),
+      `broadcast-${savedMessage.broadcast.toString()}`,  // Add the prefix here
       broadcastPayload
     );
 

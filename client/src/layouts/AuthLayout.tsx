@@ -114,9 +114,7 @@ export const AuthLayout: FC<AuthLayoutProps> = ({ children, title }) => {
         </div>
         {/* شرط لعرض الـ Dropdown فقط إذا كان التوكن موجودًا */}
         {token && (
-          <button className="p-2">
             <SendOptionsDropdownHome onItemClick={onMenuItemClick} />
-          </button>
         )}
       </header>
       
