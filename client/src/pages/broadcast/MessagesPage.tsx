@@ -272,7 +272,7 @@ export const MessagesPageContent: FC = () => {
                           onOptionsClick={() => {}}
                         />
                       );
-                    case "process":
+                    case "progress":
                       return (
                         <ProgressBar
                           key={index}
@@ -736,7 +736,7 @@ export const MessagesPage: FC = () => {
                           onOptionsClick={() => {}}
                         />
                       );
-                    case "process":
+                    case "progress":
                       return (
                         <ProgressBar
                           key={index}
