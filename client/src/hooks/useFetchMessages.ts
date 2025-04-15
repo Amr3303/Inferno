@@ -746,25 +746,26 @@ export interface Message {
   createdAt?: string;
 }
 
+// Inside useFetchMessages.ts
 export const useFetchMessages = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  
   const selectedBroadcastId = localStorage.getItem('selectedBroadcastId');
   const token = localStorage.getItem('token');
-
+  
   const API_ENDPOINT = `https://inferno-neon.vercel.app/api/v1/broadcasts/${selectedBroadcastId}/messages`;
-
+  
   const fetchMessages = useCallback(async () => {
     if (!selectedBroadcastId || !token) {
       setError('Missing broadcastId or token');
       return;
     }
-
+    
     setLoading(true);
     setError(null);
-
+    
     try {
       const response = await fetch(API_ENDPOINT, {
         method: 'GET',
@@ -773,17 +774,18 @@ export const useFetchMessages = () => {
           'Content-Type': 'application/json',
         },
       });
-
+      
       if (!response.ok) {
         throw new Error(`Failed to fetch messages: ${response.status}`);
       }
-
+      
       const data = await response.json();
       const formattedMessages = (data.messages || []).map((msg: any) => ({
         ...msg,
         id: msg._id || msg.id,
       }));
-
+      
+      console.log("Fetched messages:", formattedMessages);
       setMessages(formattedMessages);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Unknown error occurred');
@@ -791,50 +793,53 @@ export const useFetchMessages = () => {
       setLoading(false);
     }
   }, [selectedBroadcastId, token, API_ENDPOINT]);
-
-  // Function to update the UI when a new message is received
-  const updateUI = (newMessage: any) => {
-    setMessages(prevMessages => {
-      const formattedMessage = {
-        ...newMessage,
-        id: newMessage._id || newMessage.id,
-      };
-      
-      // Avoid duplicates
-      if (prevMessages.some(msg => msg.id === formattedMessage.id)) {
-        return prevMessages;
-      }
-
-      return [formattedMessage, ...prevMessages];
-    });
-  };
-
+  
   useEffect(() => {
     if (!selectedBroadcastId) return;
-
+    
     // Fetch existing messages
     fetchMessages();
-
-    // Set up Pusher
-    const pusher = getPusherInstance();
-
-    // Subscribe to the channel
-    const channelName = `broadcast-${selectedBroadcastId}`;
-    const channel = pusher.subscribe(channelName);
-
-    // Handle new messages received from Pusher
-    channel.bind('new-message', (newMessage: any) => {
-      console.log('New message received:', newMessage);
-      updateUI(newMessage); // Call updateUI to update the messages state
-    });
-
-    // Cleanup on unmount
-    return () => {
-      channel.unbind('new-message');
-      pusher.unsubscribe(channelName);
-    };
+    
+    try {
+      // Set up Pusher
+      const pusher = getPusherInstance();
+      
+      // Subscribe to the channel
+      const channelName = `broadcast-${selectedBroadcastId}`;
+      console.log(`Subscribing to Pusher channel: ${channelName}`);
+      const channel = pusher.subscribe(channelName);
+      
+      // Log all events received on this channel for debugging
+      channel.bind_global((eventName: string, data: any) => {
+        console.log(`Received Pusher event: ${eventName}`, data);
+      });
+      
+      // Try different event names that might be used by the backend
+      const eventNames = ['new-message', 'message', 'message-created'];
+      
+      eventNames.forEach(eventName => {
+        channel.bind(eventName, (newMessage: any) => {
+          console.log(`Received message via Pusher (${eventName}):`, newMessage);
+          
+          // Refresh messages to update the UI
+          fetchMessages();
+        });
+      });
+      
+      // Cleanup on unmount
+      return () => {
+        eventNames.forEach(eventName => {
+          channel.unbind(eventName);
+        });
+        channel.unbind_global();
+        pusher.unsubscribe(channelName);
+        console.log(`Unsubscribed from Pusher channel: ${channelName}`);
+      };
+    } catch (error) {
+      console.error("Error setting up Pusher:", error);
+    }
   }, [selectedBroadcastId, fetchMessages]);
-
+  
   return {
     messages,
     loading,
