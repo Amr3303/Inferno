@@ -143,6 +143,7 @@ export const SendProcessModal: FC<SendProcessModalProps> = ({ isOpen, onClose })
           <h2 className="text-xl font-bold">Send process</h2>
           <button
             onClick={onClose}
+            title="Close" // Added title attribute for accessibility
             className="text-gray-500 hover:text-gray-700"
           >
             <X size={24} />
