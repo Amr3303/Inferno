@@ -1,6 +1,7 @@
 import { FC, useState } from 'react';
 import { X } from 'lucide-react';
 import { useToast } from '../../hooks/use-toast';
+import { useQueryApi } from '../../hooks/use-query-api';  // تأكد من استخدام الدالة من الـ hook
 
 interface AddQueryModalProps {
   isOpen: boolean;
@@ -27,7 +28,7 @@ export const AddQueryModal: FC<AddQueryModalProps> = ({ isOpen, onClose }) => {
   const [queryDescription, setQueryDescription] = useState('');
   const { toast } = useToast();
   const token = localStorage.getItem('token');
-  const [isLoading, setIsLoading] = useState(false);
+  const { sendQueryMessage, isLoading } = useQueryApi();  // استدعاء الـ hook
 
   const handleSendQuery = async () => {
     if (!queryName.trim() || !queryDescription.trim()) {
@@ -38,56 +39,25 @@ export const AddQueryModal: FC<AddQueryModalProps> = ({ isOpen, onClose }) => {
       });
       return;
     }
-
-    setIsLoading(true);
-    try {
-      const response = await fetch('https://inferno-neon.vercel.app/api/v1/broadcasts/67f86af3b4f8989bb8402f01/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          type: "query",
-          content: {
-            query: queryName,
-            details: queryDescription
-          }
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const responseText = await response.text();
-      console.log("Response text:", responseText);
-      const data: MessageResponse = responseText ? JSON.parse(responseText) : {};
-
-      if (data.success) {
-        toast({
-          title: "success",
-          description: "Message sent successfully!"
-        });
-        setQueryName('');
-        setQueryDescription('');
-        onClose();
-      } else {
-        toast({
-          description: data.message || "Failed to send message"
-        });
-      }
-    } catch (error: any) {
-      console.error("Error sending message:", error);
+  
+    const token = localStorage.getItem('token');
+    if (!token) {
       toast({
         title: "error",
-        description: error.message || "Connection to server failed",
+        description: "Please log in first.",
         variant: "destructive"
       });
-    } finally {
-      setIsLoading(false);
+      return;
+    }
+  
+    const success = await sendQueryMessage(queryName, queryDescription, token);
+    if (success) {
+      setQueryName('');
+      setQueryDescription('');
+      onClose();
     }
   };
+  
 
   if (!isOpen) return null;
 

@@ -106,7 +106,7 @@ interface SendProcessModalProps {
   setProcessName: React.Dispatch<React.SetStateAction<string>>;
   processProgress: number;
   setProcessProgress: React.Dispatch<React.SetStateAction<number>>;
-  onSubmit: () => void;
+  // onSubmit: () => void;
 }
 
 export const SendProcessModal: FC<SendProcessModalProps> = ({ isOpen, onClose }) => {
@@ -116,6 +116,15 @@ export const SendProcessModal: FC<SendProcessModalProps> = ({ isOpen, onClose })
   const { sendProgressMessage, isLoading } = useProgressApi(); // ← استخدام hook التقدم
 
   const handleSendProcess = async () => {
+    if (!processName.trim() || processProgress < 0 || processProgress > 100) {
+      toast({
+        title: "خطأ",
+        description: "الرجاء إدخال اسم عملية صحيح ونسبة تقدم بين 0 و 100",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const success = await sendProgressMessage(processName, processProgress);
     if (success) {
       setProcessName('');
@@ -123,6 +132,7 @@ export const SendProcessModal: FC<SendProcessModalProps> = ({ isOpen, onClose })
       onClose();
     }
   };
+
 
   if (!isOpen) return null;
 
@@ -142,7 +152,8 @@ export const SendProcessModal: FC<SendProcessModalProps> = ({ isOpen, onClose })
         {/* Process Name */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Process name          </label>
+            Process name          
+          </label>
           <input
             type="text"
             value={processName}

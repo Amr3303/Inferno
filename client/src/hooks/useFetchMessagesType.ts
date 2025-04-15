@@ -91,7 +91,7 @@ const pusherClient = new Pusher('7cc17b8ffe1acd631dea', {
 
 export interface Message {
   id: string;
-  type: 'text' | 'location' | 'process' | 'query';
+  type: 'text' | 'location' | 'progress' | 'query';
   content: string;
   timestamp?: string;
   createdAt?: string;
@@ -105,8 +105,14 @@ export const useFetchMessagesType = () => {
 
   const selectedBroadcastId = localStorage.getItem('selectedBroadcastId');
   const token = localStorage.getItem("token");
+  console.log("Token:", token); // 👈
+if (!token) {
+  console.error("No token found");
+  throw new Error("No token found");
+}
 
   const fetchMessagesType = useCallback(async (type: string) => {
+    console.log("Fetching for type:", type); // 👈
     if (!selectedBroadcastId || !token) {
       setErrorType('Missing broadcastId or token');
       return;
@@ -117,7 +123,8 @@ export const useFetchMessagesType = () => {
     setErrorType(null);
 
     try {
-      const API_ENDPOINT = `https://inferno-neon.vercel.app/api/v1/broadcasts/${selectedBroadcastId}/messages/${type}`;
+      const API_ENDPOINT = `https://inferno-neon.vercel.app/api/v1/broadcasts/${selectedBroadcastId}/messages?${type}`;
+      console.log("Broadcast ID type:", selectedBroadcastId);
       
       const response = await fetch(API_ENDPOINT, {
         method: 'GET',
@@ -130,12 +137,17 @@ export const useFetchMessagesType = () => {
       if (!response.ok) {
         throw new Error(`Failed to fetch ${type} messages: ${response.status}`);
       }
+      console.log("re", response);
 
       const data = await response.json();
+      console.log("data:", data);
       const formattedMessages = (data.messages || []).map((msg: any) => ({
         ...msg,
         id: msg._id || msg.id,
       }));
+      console.log("formattedMessages:", JSON.stringify(formattedMessages, null, 2));
+      console.log("response type",formattedMessages)
+
 
       setMessagesType(formattedMessages);
     } catch (error) {

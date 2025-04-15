@@ -601,7 +601,7 @@ import getPusherInstance from '../lib/pusher';
 
 export interface Message {
   id: string;
-  type: 'text' | 'location' | 'process' | 'query';
+  type: 'text' | 'location' | 'progress' | 'query';
   content: string;
   timestamp?: string;
   createdAt?: string;
@@ -611,7 +611,7 @@ export const useFetchMessages = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [broadcastId, setBroadcastId] = useState(localStorage.getItem('selectedBroadcastId'));
+  // const [broadcastId, setBroadcastId] = useState(localStorage.getItem('selectedBroadcastId'));
 
 
   const selectedBroadcastId = localStorage.getItem('selectedBroadcastId');
@@ -636,7 +636,7 @@ export const useFetchMessages = () => {
           'Content-Type': 'application/json',
         },
       });
-
+      console.log("response",response)
       if (!response.ok) {
         throw new Error(`Failed to fetch messages: ${response.status}`);
       }
@@ -646,6 +646,7 @@ export const useFetchMessages = () => {
         ...msg,
         id: msg._id || msg.id,
       }));
+      console.log("response",formattedMessages)
 
       setMessages(formattedMessages);
     } catch (error) {

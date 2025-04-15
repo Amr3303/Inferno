@@ -12,7 +12,6 @@ import { AddQueryModal } from '../../components/modals/AddQueryModal';
 import { SendProcessModal } from '../../components/modals/SendProcessModal';
 import { SendLocationModal } from '../../components/modals/SendLocationModal';
 import { useMessageApi } from '../../hooks/use-message-api';
-import { useProgressApi } from '../../hooks/use-process-api';
 import { useFetchMessages } from '../../hooks/useFetchMessages';
 import { useFetchMessagesType } from '../../hooks/useFetchMessagesType';
 
@@ -33,7 +32,6 @@ interface Message {
 
 export const MessagesPage: FC = () => {
   const selectedBroadcastId = localStorage.getItem("selectedBroadcastId");
-  const broadcastId = localStorage.getItem("selectedBroadcastId");
 
   // Basic state variables
   const [messageText, setMessageText] = useState('');
@@ -44,7 +42,7 @@ export const MessagesPage: FC = () => {
   // Message states from hooks
   const { messages, loading, error, fetchMessages } = useFetchMessages();
   const { messagesType, loadingType, fetchMessagesType } = useFetchMessagesType();
-  const [messageType, setMessageType] = useState<string>('text');
+  // const [messageType, setMessageType] = useState<string>('text');
 
   // Modal states
   const [showAddAgentModal, setShowAddAgentModal] = useState(false);
@@ -76,18 +74,19 @@ export const MessagesPage: FC = () => {
     console.log(`Fetching all message types for broadcast ID: ${selectedBroadcastId}`);
   }, [selectedBroadcastId, fetchMessages, fetchMessagesType]);
 
-  useEffect(() => {
-    // Fetch messages of a specific type when loading the page
-    fetchMessagesType(messageType);
-  }, [fetchMessagesType, messageType]);
+  // useEffect(() => {
+  //   // Fetch messages of a specific type when loading the page
+  //   fetchMessagesType(messagesType);
+  // }, [fetchMessagesType, messagesType]);
+  
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) return;
-
+    console.log("action",currentView)
     switch (currentView) {
       case 'View Message':
-        fetchMessagesType('message');
+        fetchMessages();
         break;
       case 'View Text':
         fetchMessagesType('text');
@@ -96,7 +95,7 @@ export const MessagesPage: FC = () => {
         fetchMessagesType('location');
         break;
       case 'View Process':
-        fetchMessagesType('process');
+        fetchMessagesType('progress');
         break;
       case 'View Query':
         fetchMessagesType('query');
@@ -114,7 +113,7 @@ export const MessagesPage: FC = () => {
     fetchMessages();
     fetchMessagesType('text');
     fetchMessagesType('location');
-    fetchMessagesType('process');
+    fetchMessagesType('progress');
     fetchMessagesType('query');
 
     toast({
@@ -123,22 +122,7 @@ export const MessagesPage: FC = () => {
     });
   };
 
-  const { sendProgressMessage } = useProgressApi();
-  const handleSendProcess = async () => {
-    // التأكد من أن القيمة المدخلة للـ content و progress صحيحة
-    const content = processName.trim(); // يمكن استبداله بالقيمة التي تحتاجها
-    const progressValue = processProgress; // نفس الأمر هنا، استخدم المتغير الذي يحتوي على النسبة المئوية
-
-    const success = await sendProgressMessage(content, progressValue);
-
-    if (success) {
-      // يمكن تنفيذ أي من العمليات التالية بعد النجاح
-      setProcessName(''); // إعادة تعيين الـ processName بعد الإرسال
-      setProcessProgress(0); // إعادة تعيين الـ progress بعد الإرسال
-      // يمكنك أيضًا تحديث أو إعادة تحميل الرسائل أو أي عملية أخرى.
-    }
-  };
-
+  // const { sendProgressMessage } = useProgressApi();
 
   // Handle sending text message
   const handleSendMessage = async () => {
@@ -198,9 +182,17 @@ export const MessagesPage: FC = () => {
         setShowViewAgentsModal(true);
         break;
       case "View Message":
+        setCurrentView(action);
+        break;
       case "View Text":
+        setCurrentView(action);
+        break;
       case "View Location":
+        setCurrentView(action);
+        break;
       case "View Process":
+        setCurrentView(action);
+        break;
       case "View Query":
         setCurrentView(action);
         break;
@@ -253,7 +245,7 @@ export const MessagesPage: FC = () => {
                       return (
                         <LocationCard key={index} coordinates={msg.content} onOptionsClick={() => { }} />
                       );
-                    case "process":
+                    case "progress":
                       return (
                         <ProgressBar key={index} progress={parseInt(msg.content)} onOptionsClick={() => { }} />
                       );
@@ -439,7 +431,7 @@ export const MessagesPage: FC = () => {
           setProcessName={setProcessName}
           processProgress={processProgress}
           setProcessProgress={setProcessProgress}
-          onSubmit={handleSendProcess}
+          // onSubmit={handleSendProcess}
         />
       )}
 

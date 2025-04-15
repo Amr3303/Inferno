@@ -1,10 +1,6 @@
 import { useState } from 'react';
 import { useToast } from './use-toast';
 
-// API endpoints and constants
-const BROADCAST_ID = localStorage.getItem("selectedBroadcastId");
-const API_ENDPOINT = `https://inferno-neon.vercel.app/api/v1/broadcasts/${BROADCAST_ID}/messages`;
-
 interface LocationResponse {
   success: boolean;
   message: string;
@@ -33,6 +29,9 @@ export const useLocationApi = () => {
 
   // دالة لإرسال رسالة الموقع
   const sendLocationMessage = async (locationContent: string, lat: number, lng: number): Promise<boolean> => {
+    // API endpoints and constants
+    const BROADCAST_ID = localStorage.getItem("selectedBroadcastId");
+    const API_ENDPOINT = `https://inferno-neon.vercel.app/api/v1/broadcasts/${BROADCAST_ID}/messages`;
     if (!locationContent.trim()) {
       toast({
         title: "خطأ",

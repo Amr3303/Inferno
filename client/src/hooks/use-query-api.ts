@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import { useToast } from './use-toast';
 
-// API endpoints and constants
-const BROADCAST_ID = localStorage.getItem("selectedBroadcastId");
-const API_ENDPOINT = `https://inferno-neon.vercel.app/api/v1/broadcasts/${BROADCAST_ID}/messages`;
 
 interface MessageResponse {
   success: boolean;
@@ -27,6 +24,10 @@ export const useQueryApi = () => {
   const token = localStorage.getItem('token'); // على سبيل المثال من الـ localStorage
   // دالة لإرسال استعلامات
   const sendQueryMessage = async (query: string, details: string, token: string): Promise<boolean> => {
+    // API endpoints and constants
+    const BROADCAST_ID = localStorage.getItem("selectedBroadcastId");
+    const API_ENDPOINT = `https://inferno-neon.vercel.app/api/v1/broadcasts/${BROADCAST_ID}/messages`;
+
     if (!query.trim() || !details.trim()) {
       toast({
         title: "خطأ",
