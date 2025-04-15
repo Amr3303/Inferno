@@ -809,10 +809,20 @@ export const useFetchMessages = () => {
       console.log(`Subscribing to Pusher channel: ${channelName}`);
       const channel = pusher.subscribe(channelName);
       
-      // Log all events received on this channel for debugging
-      channel.bind_global((eventName: string, data: any) => {
-        console.log(`Received Pusher event: ${eventName}`, data);
-      });
+      // Inside your Pusher setup in useFetchMessages
+channel.bind_global((eventName, data) => {
+  console.log(`Received event: ${eventName}`, data);
+  // If this is a message event (contains content & other message properties)
+  if (data && (data.content !== undefined || data.type === 'text')) {
+    console.log('This appears to be a message event, refreshing messages');
+    fetchMessages();
+  }
+});
+
+      // // Log all events received on this channel for debugging
+      // channel.bind_global((eventName: string, data: any) => {
+      //   console.log(`Received Pusher event: ${eventName}`, data);
+      // });
       
       // Try different event names that might be used by the backend
       const eventNames = ['new-message', 'message', 'message-created'];
