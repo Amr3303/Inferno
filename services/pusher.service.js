@@ -13,11 +13,7 @@ class PusherService {
 
   async broadcastMessage(broadcastId, message) {
     try {
-      await this.pusher.trigger(
-        `broadcast-${broadcastId}`,
-        "new-message",
-        message
-      );
+      await this.pusher.trigger(`new-message`, "message-event", message);
       return true;
     } catch (error) {
       console.error("Error broadcasting message:", error);
