@@ -65,7 +65,16 @@ import { QueryPage } from "./pages/broadcast/QueryPage";
 import NotFound from "./pages/NotFound";
 import { getPusherInstance, cleanupPusher } from "./lib/pusher";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient(
+  {
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: true,
+        retry: 1,
+      },
+    },
+  }
+);
 
 const App = () => {
   // Initialize Pusher when the app loads
@@ -81,6 +90,7 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <ReactQueryDevtools />
       <TooltipProvider>
         <Toaster />
         <Sonner />
