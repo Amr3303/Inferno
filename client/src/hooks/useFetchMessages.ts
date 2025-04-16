@@ -20,12 +20,20 @@ export const useFetchMessages = () => {
 
   console.log(selectedBroadcastId);
 
-  const API_ENDPOINT = `https://inferno-neon.vercel.app/api/v1/broadcasts/${selectedBroadcastId}/messages`;
+  // Only create the API endpoint if selectedBroadcastId exists
+  const API_ENDPOINT = selectedBroadcastId 
+    ? `/api/v1/broadcasts/${selectedBroadcastId}/messages`
+    : null;
 
   const fetchMessages = async () => {
     // checking for boradcastID or TOKEN
     if (!selectedBroadcastId || !token) {
       throw new Error("Missing broadcast_ID or TOKEN");
+    }
+
+    // Only proceed if we have a valid API endpoint
+    if (!API_ENDPOINT) {
+      throw new Error("Invalid API endpoint - missing broadcast ID");
     }
 
     const response = await fetch(API_ENDPOINT, {
@@ -61,7 +69,7 @@ export const useFetchMessages = () => {
   } = useQuery({
     queryKey: ["messages", selectedBroadcastId],
     queryFn: fetchMessages,
-    enabled: !!selectedBroadcastId && !!token,
+    enabled: !!selectedBroadcastId && !!token && !!API_ENDPOINT,
     staleTime: staleTime,
     refetchOnWindowFocus: true,
   });

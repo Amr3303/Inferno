@@ -26,7 +26,8 @@ export const useQueryApi = () => {
   const sendQueryMessage = async (query: string, details: string, token: string): Promise<boolean> => {
     // API endpoints and constants
     const BROADCAST_ID = localStorage.getItem("selectedBroadcastId");
-    const API_ENDPOINT = `https://inferno-neon.vercel.app/api/v1/broadcasts/${BROADCAST_ID}/messages`;
+    // Change this to use the proxy
+    const API_ENDPOINT = `/api/v1/broadcasts/${BROADCAST_ID}/messages`;
 
     if (!query.trim() || !details.trim()) {
       toast({

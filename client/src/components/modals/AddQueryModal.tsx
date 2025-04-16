@@ -1,7 +1,7 @@
 import { FC, useState } from 'react';
 import { X } from 'lucide-react';
 import { useToast } from '../../hooks/use-toast';
-import { useQueryApi } from '../../hooks/use-query-api';  // تأكد من استخدام الدالة من الـ hook
+import { useQueryApi } from '../../hooks/use-query-api';
 
 interface AddQueryModalProps {
   isOpen: boolean;
@@ -28,22 +28,21 @@ export const AddQueryModal: FC<AddQueryModalProps> = ({ isOpen, onClose }) => {
   const [queryDescription, setQueryDescription] = useState('');
   const { toast } = useToast();
   const token = localStorage.getItem('token');
-  const { sendQueryMessage, isLoading } = useQueryApi();  // استدعاء الـ hook
+  const { sendQueryMessage, isLoading } = useQueryApi();
 
   const handleSendQuery = async () => {
     if (!queryName.trim() || !queryDescription.trim()) {
       toast({
-        title: "error",
+        title: "Error",
         description: "Please fill in all fields.",
         variant: "destructive"
       });
       return;
     }
-  
-    const token = localStorage.getItem('token');
+
     if (!token) {
       toast({
-        title: "error",
+        title: "Error",
         description: "Please log in first.",
         variant: "destructive"
       });
@@ -57,7 +56,6 @@ export const AddQueryModal: FC<AddQueryModalProps> = ({ isOpen, onClose }) => {
       onClose();
     }
   };
-  
 
   if (!isOpen) return null;
 
@@ -68,6 +66,7 @@ export const AddQueryModal: FC<AddQueryModalProps> = ({ isOpen, onClose }) => {
           <h2 className="text-xl font-bold">Add query</h2>
           <button
             onClick={onClose}
+            title="Close modal" 
             className="text-gray-500 hover:text-gray-700"
           >
             <X size={24} />
@@ -91,7 +90,7 @@ export const AddQueryModal: FC<AddQueryModalProps> = ({ isOpen, onClose }) => {
 
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            وصف الاستعلام
+            Query description
           </label>
           <div className="relative">
             <textarea
@@ -132,7 +131,7 @@ export const AddQueryModal: FC<AddQueryModalProps> = ({ isOpen, onClose }) => {
                     d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
                   ></path>
                 </svg>
-                جاري الإرسال...
+                Sending...
               </span>
             ) : (
               "Add query"

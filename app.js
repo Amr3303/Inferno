@@ -33,7 +33,7 @@ app.use(helmet());
 app.use(xss());
 app.use(
   cors({
-    origin: ["http://localhost:8080", "https://inferno-neon.vercel.app"],
+    origin: ["http://localhost:8080", "http://localhost:8083", "https://inferno-neon.vercel.app"],
     credentials: true,
   })
 );

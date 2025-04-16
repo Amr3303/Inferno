@@ -163,7 +163,7 @@ export const MainLayout: FC<MainLayoutProps> = ({
     const fetchBroadcasts = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('https://inferno-neon.vercel.app/api/v1/broadcasts/my', {
+        const response = await fetch('/api/v1/broadcasts/my', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -171,9 +171,17 @@ export const MainLayout: FC<MainLayoutProps> = ({
           },
         });
 
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
         if (data.success) {
           setBroadcasts(data.data);
+          // If there are broadcasts, set the first one as selected
+          if (data.data && data.data.length > 0) {
+            localStorage.setItem('selectedBroadcastId', data.data[0]._id);
+          }
         }
       } catch (error) {
         console.error('Error fetching broadcasts:', error);

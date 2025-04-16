@@ -27,7 +27,10 @@ export const useProgressApi = () => {
   const sendProgressMessage = async (content: string, progress: number): Promise<boolean> => {
     // Broadcast ID from localStorage
     const BROADCAST_ID = localStorage.getItem("selectedBroadcastId");
-    const API_ENDPOINT = `https://inferno-neon.vercel.app/api/v1/broadcasts/${BROADCAST_ID}/messages`;
+    
+    // Change this to use the proxy
+    const API_ENDPOINT = `/api/v1/broadcasts/${BROADCAST_ID}/messages`;
+    
     if (!content.trim() || progress < 0 || progress > 100) {
       toast({
         title: "خطأ",

@@ -211,7 +211,8 @@ export const useMessageApi = () => {
       const selectedBroadcastId = localStorage.getItem("selectedBroadcastId");
       console.log("Token:", token);
       
-      const response = await fetch(`https://inferno-neon.vercel.app/api/v1/broadcasts/${selectedBroadcastId}/messages`, {
+      // Change this to use the proxy
+      const response = await fetch(`/api/v1/broadcasts/${selectedBroadcastId}/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

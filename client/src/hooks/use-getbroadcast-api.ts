@@ -17,8 +17,9 @@ export const getMyBroadcasts = async (): Promise<Broadcast[] | null> => {
     const token = localStorage.getItem("token");
     if (!token) return null;
 
+    // Use relative URL instead of absolute URL
     const response = await fetch(
-      "https://inferno-neon.vercel.app/api/v1/broadcasts/my",
+      "/api/v1/broadcasts/my",
       {
         method: "GET",
         headers: {

@@ -24,8 +24,9 @@ const Broadcast: React.FC<BroadcastProps> = ({ broadcastId }) => {
       if (!token) return;
 
       try {
+        // Change this to use the proxy
         const response = await fetch(
-          `https://inferno-neon.vercel.app/api/v1/broadcasts/${broadcastId}/messages`,
+          `/api/v1/broadcasts/${broadcastId}/messages`,
           {
             headers: {
               'Authorization': `Bearer ${token}`,

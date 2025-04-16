@@ -1,4 +1,5 @@
 import { FC, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { MainLayout } from "../../layouts/MainLayout";
 import { useToast } from "../../hooks/use-toast";
 import { MapPin } from "lucide-react";
@@ -47,12 +48,14 @@ interface Message {
 
 export const MessagesPage: FC = () => {
   const selectedBroadcastId = localStorage.getItem("selectedBroadcastId");
+  const navigate = useNavigate();
 
   // Basic state variables
   const [messageText, setMessageText] = useState("");
   const [currentView, setCurrentView] = useState("View Message");
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [shouldFetchMessages, setShouldFetchMessages] = useState(false);
 
   // Message states from hooks
   const { messages, loading, error, fetchMessages } = useFetchMessages();
@@ -74,25 +77,29 @@ export const MessagesPage: FC = () => {
   // Custom hooks
   const { sendTextMessage } = useMessageApi();
 
-  // Fetch all messages for all types when broadcast changes
+  // Modified: Only show a notification if no broadcast is selected
   useEffect(() => {
-    if (!selectedBroadcastId) return;
+    if (!selectedBroadcastId) {
+      // Show a message to the user that they need to select a broadcast
+      toast({
+        title: "No broadcast selected",
+        description: "Please select a broadcast to view messages",
+        variant: "destructive",
+      });
+      return;
+    } else {
+      // When a broadcast is selected, set the flag to true to allow fetching
+      setShouldFetchMessages(true);
+    }
+  }, [selectedBroadcastId, toast]);
 
+  // Modified: Only fetch messages when view changes AND we have a selectedBroadcastId AND shouldFetchMessages is true
+  useEffect(() => {
+    if (!selectedBroadcastId || !shouldFetchMessages) return;
+    
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    // Fetch all message types
-    fetchMessages();
-    fetchMessagesType("text");
-
-    console.log(
-      `Fetching all message types for broadcast ID: ${selectedBroadcastId}`
-    );
-  }, [selectedBroadcastId, fetchMessages, fetchMessagesType]);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
     console.log("action", currentView);
     switch (currentView) {
       case "View Message":
@@ -113,12 +120,15 @@ export const MessagesPage: FC = () => {
       default:
         console.warn("Unknown view type");
     }
-  }, [currentView, fetchMessagesType, fetchMessages]);
+  }, [currentView, fetchMessagesType, fetchMessages, selectedBroadcastId, shouldFetchMessages]);
 
-  // Refresh all messages
+  // Refresh all messages - only when a broadcast is selected
   const refreshAllMessages = () => {
     const token = localStorage.getItem("token");
     if (!selectedBroadcastId || !token) return;
+
+    // Set the flag to true to allow fetching
+    setShouldFetchMessages(true);
 
     fetchMessages();
     fetchMessagesType("text");
@@ -132,7 +142,44 @@ export const MessagesPage: FC = () => {
     });
   };
 
+  // Function to handle broadcast selection
+  const handleBroadcastSelect = () => {
+    if (selectedBroadcastId) {
+      setShouldFetchMessages(true);
+      
+      // Fetch messages based on current view
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      
+      switch (currentView) {
+        case "View Message":
+          fetchMessages();
+          break;
+        case "View Text":
+          fetchMessagesType("text");
+          break;
+        case "View Location":
+          fetchMessagesType("location");
+          break;
+        case "View Process":
+          fetchMessagesType("progress");
+          break;
+        case "View Query":
+          fetchMessagesType("query");
+          break;
+        default:
+          console.warn("Unknown view type");
+      }
+      
+      toast({
+        title: "Broadcast Selected",
+        description: `Now viewing messages for broadcast ID: ${selectedBroadcastId}`,
+      });
+    }
+  };
+
   const handleSendMessage = async () => {
+    // Existing code...
     const token = localStorage.getItem("token");
     if (!token) {
       toast({
@@ -174,9 +221,10 @@ export const MessagesPage: FC = () => {
 
     setIsLoading(false);
   };
-  //----------------------------------------------
+
   // Handle adding agent
   const handleAddAgent = () => {
+    // Existing code...
     if (!newAgentEmail.trim()) {
       toast({
         title: "Error",
@@ -240,6 +288,7 @@ export const MessagesPage: FC = () => {
 
   // Render content based on current view
   const renderContent = () => {
+    // Existing code...
     switch (currentView) {
       case "View Message":
         return (
@@ -297,6 +346,19 @@ export const MessagesPage: FC = () => {
                       return null;
                   }
                 })}
+              </div>
+            ) : !shouldFetchMessages ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500 mb-4">
+                  Select a broadcast to view messages
+                </p>
+                <button
+                  onClick={handleBroadcastSelect}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  disabled={!selectedBroadcastId}
+                >
+                  Load Messages
+                </button>
               </div>
             ) : (
               <p className="text-gray-500 text-center py-4">
@@ -368,6 +430,19 @@ export const MessagesPage: FC = () => {
                   }
                 })}
               </div>
+            ) : !shouldFetchMessages ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500 mb-4">
+                  Select a broadcast to view {currentView.replace("View ", "").toLowerCase()} messages
+                </p>
+                <button
+                  onClick={handleBroadcastSelect}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  disabled={!selectedBroadcastId}
+                >
+                  Load Messages
+                </button>
+              </div>
             ) : (
               <p className="text-gray-500 text-center py-4">
                 No {currentView.replace("View ", "").toLowerCase()} messages
@@ -401,12 +476,22 @@ export const MessagesPage: FC = () => {
           <span className="text-sm text-blue-700">
             Current Broadcast ID: {selectedBroadcastId}
           </span>
-          <button
-            onClick={refreshAllMessages}
-            className="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded"
-          >
-            Refresh All
-          </button>
+          <div className="flex space-x-2">
+            {!shouldFetchMessages && (
+              <button
+                onClick={handleBroadcastSelect}
+                className="text-xs bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1 rounded"
+              >
+                Load Messages
+              </button>
+            )}
+            <button
+              onClick={refreshAllMessages}
+              className="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded"
+            >
+              Refresh All
+            </button>
+          </div>
         </div>
       )}
 

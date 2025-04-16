@@ -105,34 +105,43 @@ export const useFetchMessagesType = () => {
 
   const selectedBroadcastId = localStorage.getItem('selectedBroadcastId');
   const token = localStorage.getItem("token");
-  console.log("Token:", token); // 👈
-if (!token) {
-  console.error("No token found");
-  throw new Error("No token found");
-}
 
-  const fetchMessagesType = useCallback(async (type: string) => {
-    console.log("Fetching for type:", type); // 👈
-    if (!selectedBroadcastId || !token) {
-      setErrorType('Missing broadcastId or token');
-      return;
-    }
+  console.log("Token:", token);
+  console.log("selectedBroadcastId:", selectedBroadcastId);
+  
+  // Remove the error throw as it causes the app to crash
+  if (!token) {
+    console.error("No token found");
+    // Don't throw an error, just return early in the fetch function
+  }
 
-    setCurrentType(type);
-    setLoadingType(true);
-    setErrorType(null);
+  const fetchMessagesType = useCallback(
+    async (type: string, showLoading = true) => {
+      if (!selectedBroadcastId || !token) {
+        setErrorType("Missing broadcastId or token");
+        return;
+      }
 
-    try {
-      const API_ENDPOINT = `https://inferno-neon.vercel.app/api/v1/broadcasts/${selectedBroadcastId}/messages?${type}`;
-      console.log("Broadcast ID type:", selectedBroadcastId);
-      
-      const response = await fetch(API_ENDPOINT, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      // Update current type when fetching
+      setCurrentType(type);
+
+      // Only show loading indicator for manual refreshes, not automatic polling
+      if (showLoading) {
+        setLoadingType(true);
+      }
+      setErrorType(null);
+
+      try {
+        // Change this to use the proxy
+        const API_ENDPOINT = `/api/v1/broadcasts/${selectedBroadcastId}/messages?type=${type}`;
+        console.log("API_ENDPOINT:", API_ENDPOINT);
+        const response = await fetch(API_ENDPOINT, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
 
       if (!response.ok) {
         throw new Error(`Failed to fetch ${type} messages: ${response.status}`);
