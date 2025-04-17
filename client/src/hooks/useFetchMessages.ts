@@ -860,4 +860,3 @@ channel.bind_global((eventName, data) => {
     fetchMessages,
   };
 };
-
