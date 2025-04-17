@@ -64,6 +64,8 @@ import { ProcessBarPage } from "./pages/broadcast/ProcessBarPage";
 import { QueryPage } from "./pages/broadcast/QueryPage";
 import NotFound from "./pages/NotFound";
 import { getPusherInstance, cleanupPusher } from "./lib/pusher";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+
 
 const queryClient = new QueryClient(
   {
