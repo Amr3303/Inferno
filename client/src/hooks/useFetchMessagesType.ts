@@ -92,9 +92,11 @@ const pusherClient = new Pusher('7cc17b8ffe1acd631dea', {
 export interface Message {
   id: string;
   type: 'text' | 'location' | 'progress' | 'query';
-  content: string;
+  content: string | { query: string; details: string }; // يكون ممكن يكون string أو object
   timestamp?: string;
   createdAt?: string;
+  progress?: number;  // إضافة هذه السطر لتعريف progress
+  coordinates?: { lat: number; lng: number ;_id:string};  // إضافة هذا السطر للإحداثيات
 }
 
 export const useFetchMessagesType = () => {
@@ -106,12 +108,12 @@ export const useFetchMessagesType = () => {
   const selectedBroadcastId = localStorage.getItem('selectedBroadcastId');
   const token = localStorage.getItem("token");
   console.log("Token:", token); // 👈
-if (!token) {
-  console.error("No token found");
-  throw new Error("No token found");
-}
-
+  
   const fetchMessagesType = useCallback(async (type: string) => {
+    if (!token) {
+      console.error("No token found");
+      throw new Error("No token found");
+    }  
     console.log("Fetching for type:", type); // 👈
     if (!selectedBroadcastId || !token) {
       setErrorType('Missing broadcastId or token');
@@ -121,11 +123,11 @@ if (!token) {
     setCurrentType(type);
     setLoadingType(true);
     setErrorType(null);
-
     try {
-      const API_ENDPOINT = `https://inferno-neon.vercel.app/api/v1/broadcasts/${selectedBroadcastId}/messages?${type}`;
+      // const API_ENDPOINT = `https://inferno-neon.vercel.app/api/v1/broadcasts/${selectedBroadcastId}/messages?${type}`;
+      const API_ENDPOINT = `https://inferno-neon.vercel.app/api/v1/broadcasts/${selectedBroadcastId}/messages?type=${type}`;
       console.log("Broadcast ID type:", selectedBroadcastId);
-      
+
       const response = await fetch(API_ENDPOINT, {
         method: 'GET',
         headers: {
@@ -160,11 +162,11 @@ if (!token) {
   // Set up Pusher subscription for specific message type
   useEffect(() => {
     if (!selectedBroadcastId || !currentType) return;
-    
+
     // Set up Pusher channel subscription
     const channelName = `broadcast-${selectedBroadcastId}`;
     const channel = pusherClient.subscribe(channelName);
-    
+
     // Listen for new message events
     const handleNewMessage = (newMessage: any) => {
       // Only update if message type matches current view type
@@ -174,19 +176,19 @@ if (!token) {
           ...newMessage,
           id: newMessage._id || newMessage.id,
         };
-        
+
         // Update messages state by adding the new message
         setMessagesType(prevMessages => {
           // Check if message already exists to prevent duplicates
           const messageExists = prevMessages.some(msg => msg.id === formattedMessage.id);
           if (messageExists) return prevMessages;
-          
+
           // Add new message to the beginning of the array
           return [formattedMessage, ...prevMessages];
         });
       }
     };
-    
+
     channel.bind('new-message', handleNewMessage);
 
     // Cleanup function

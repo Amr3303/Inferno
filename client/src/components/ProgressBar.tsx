@@ -1,133 +1,49 @@
-// import { FC } from 'react';
+import React from 'react';
 
-// interface ProgressBarProps {
-//   progress: number; // 0-100
-//   markerCount?: number;
-//   onOptionsClick?: () => void;
-// }
-
-// export const ProgressBar: FC<ProgressBarProps> = ({ 
-//   progress, 
-//   markerCount = 4,
-//   onOptionsClick
-// }) => {
-//   // Create an array of marker positions
-//   const markers = Array.from({ length: markerCount }, (_, i) => {
-//     const position = (i / (markerCount - 1)) * 100;
-//     return {
-//       position,
-//       active: position <= progress
-//     };
-//   });
-
-//   return (
-//     <div className="p-4 mb-4 message-card relative">
-//       <h3 className="font-bold mb-4">Progress Bar: {progress}%</h3>
-//       <div className="mt-6 mb-4">
-//         <div className="progress-bar">
-//           <div 
-//             className="progress-fill" 
-//             style={{ width: `${progress}%` }}
-//           ></div>
-          
-//           {markers.map((marker, index) => (
-//             <div
-//               key={index}
-//               className={`progress-marker ${marker.active ? 'active' : ''}`}
-//               style={{ left: `${marker.position}%` }}
-//             ></div>
-//           ))}
-//         </div>
-//       </div>
-      
-//       {onOptionsClick && (
-//         <button 
-//           onClick={onOptionsClick}
-//           className="absolute top-2 right-2 p-1"
-//         >
-//           <div className="flex flex-col space-y-1">
-//             <div className="w-1.5 h-1.5 rounded-full bg-gray-600"></div>
-//             <div className="w-1.5 h-1.5 rounded-full bg-gray-600"></div>
-//             <div className="w-1.5 h-1.5 rounded-full bg-gray-600"></div>
-//           </div>
-//         </button>
-//       )}
-//     </div>
-//   );
-// };
-import { FC } from 'react';
-
-interface ProgressBarProps {
-  progress: number; // 0-100
-  markerCount?: number;
-  onOptionsClick?: () => void;
+interface ProgressCardProps {
+  content: string; // المحتوى الذي سيكون عنوان شريط التقدم
+  progress: number;
 }
 
-export const ProgressBar: FC<ProgressBarProps> = ({ 
-  progress, 
-  markerCount = 4,
-  onOptionsClick
-}) => {
-  // Create an array of marker positions
-  const markers = Array.from({ length: markerCount }, (_, i) => {
-    const position = (i / (markerCount - 1)) * 100;
-    return {
-      position,
-      active: Math.round(position) <= Math.round(progress)
-    };
-  });
-
+export const ProgressCard: React.FC<ProgressCardProps> = ({ content, progress }) => {
+  // حساب الدوائر التي يجب أن تكون ممتلئة بناءً على التقدم
+  const milestones = [25, 50, 75, 100];
+  
   return (
-    <div className="p-4 mb-4 message-card relative">
-      <h3 className="font-bold mb-4">Progress Bar: {progress}%</h3>
-      <div className="mt-6 mb-4">
-        <div className="progress-bar relative h-2 bg-gray-300 rounded-full">
-          <div 
-            className="progress-fill transition-all duration-500 h-full bg-blue-600 rounded-full" 
-            style={{ width: `${progress}%` }}
-          ></div>
-          
-          {markers.map((marker, index) => (
-            <div
-              key={index}
-              className={`progress-marker w-2 h-2 rounded-full absolute -translate-x-1/2 top-[-4px] ${
-                marker.active ? 'bg-blue-600' : 'bg-gray-300'
-              }`}
-              style={{ left: `${marker.position}%` }}
-              title={`${Math.round(marker.position)}%`}
-            ></div>
-          ))}
-        </div>
+    <div className="bg-gray-200 p-4 rounded-lg shadow-sm">
+      <div className="flex justify-between items-center mb-2">
+        <h3 className="font-bold text-lg">{content}' : {progress}%'</h3>
+        <button className="text-xl">•••</button>
       </div>
       
-      {onOptionsClick && (
-        <button 
-          onClick={onOptionsClick}
-          className="absolute top-2 right-2 p-1"
-        >
-          <div className="flex flex-col space-y-1">
-            <div className="w-1.5 h-1.5 rounded-full bg-gray-600"></div>
-            <div className="w-1.5 h-1.5 rounded-full bg-gray-600"></div>
-            <div className="w-1.5 h-1.5 rounded-full bg-gray-600"></div>
-          </div>
-        </button>
-      )}
-      
-      <style>
-        {`
-          .progress-bar {
-            position: relative;
-            height: 8px;
-            background-color: #e5e7eb;
-            border-radius: 9999px;
-          }
-          .progress-fill {
-            height: 100%;
-            background-color: #3b82f6;
-            border-radius: 9999px;
-          }
-        `}
-      </style>
+      <div className="relative mt-4 mb-2">
+        {/* الخط الأساسي */}
+        <div className="h-2 bg-gray-300 rounded-full w-full"></div>
+        
+        {/* التقدم المملوء */}
+        <div 
+          className="absolute top-0 left-0 h-2 bg-blue-500 rounded-full" 
+          style={{ width: `${progress}%` }}
+        ></div>
+        
+        {/* دوائر المراحل */}
+        <div className="flex justify-between absolute w-full top-1/2 transform -translate-y-1/2">
+          {milestones.map((milestone, index) => {
+            const isFilled = progress >= milestone;
+            const isActive = progress >= milestone && progress < milestones[index + 1];
+            
+            return (
+              <div 
+                key={milestone}
+                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transform -translate-x-3
+                  ${isFilled ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300'}
+                  ${isActive ? 'ring-4 ring-blue-300' : ''}
+                `}
+              ></div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };
