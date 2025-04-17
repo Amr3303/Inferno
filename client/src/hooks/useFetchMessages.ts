@@ -741,10 +741,13 @@ import getPusherInstance from '../lib/pusher';
 export interface Message {
   id: string;
   type: 'text' | 'location' | 'progress' | 'query';
-  content: string;
+  content: string | { query: string; details: string }; // يكون ممكن يكون string أو object
   timestamp?: string;
   createdAt?: string;
+  progress?: number;  // إضافة هذه السطر لتعريف progress
+  coordinates?: { lat: number; lng: number ;_id:string};  // إضافة هذا السطر للإحداثيات
 }
+
 
 // Inside useFetchMessages.ts
 export const useFetchMessages = () => {
@@ -774,7 +777,7 @@ export const useFetchMessages = () => {
           'Content-Type': 'application/json',
         },
       });
-      
+      console.log("re", response);
       if (!response.ok) {
         throw new Error(`Failed to fetch messages: ${response.status}`);
       }
