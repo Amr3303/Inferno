@@ -748,6 +748,7 @@ export interface Message {
   coordinates?: { lat: number; lng: number ;_id:string};  // إضافة هذا السطر للإحداثيات
 }
 
+//test
 
 // Inside useFetchMessages.ts
 export const useFetchMessages = () => {
