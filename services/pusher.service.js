@@ -11,11 +11,11 @@ class PusherService {
     });
   }
 
-  async broadcastMessage(broadcastId, message) {
+  async broadcastMessage(message) {
     try {
       await this.pusher.trigger(
-        `broadcast-${broadcastId}`,
         "new-message",
+        "message-event",
         message
       );
       return true;

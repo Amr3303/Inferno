@@ -95,10 +95,7 @@ class MessageService {
     };
 
     // Broadcast using Pusher with the correct channel name
-    await pusherService.broadcastMessage(
-      `broadcast-${savedMessage.broadcast.toString()}`,  // Add the prefix here
-      broadcastPayload
-    );
+    await pusherService.broadcastMessage(broadcastPayload);
 
     console.log("save message to string: ", savedMessage.broadcast.toString());
     console.log("broadcast payload: ", broadcastPayload);
