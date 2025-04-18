@@ -29,7 +29,26 @@ app.set("trust proxy", 1);
 
 // Move static file serving after routes
 app.use(express.json());
-app.use(helmet());
+
+// Configure Helmet with custom CSP
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "cdn.gpteng.co"],
+        styleSrc: ["'self'", "'unsafe-inline'", "inferno-neon.vercel.app"],
+        imgSrc: ["'self'", "data:", "lovable.dev", "inferno-neon.vercel.app"],
+        connectSrc: ["'self'", "inferno-neon.vercel.app", "wss://ws-eu.pusher.com"],
+        fontSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'self'"],
+        frameSrc: ["'self'"],
+      },
+    },
+  })
+);
+
 app.use(xss());
 app.use(
   cors({
@@ -44,13 +63,19 @@ app.use("/api/v1/broadcasts", broadcastRtouer);
 app.use("/api/v1/broadcasts", messagesRouter);
 app.use("/api/v1/websocket", websocketRouter);
 
-// Remove or comment out this route as it conflicts with the React app
-// app.get("/", (req, res) => {
-//   res.send("Hello ma man");
-// });
-
 // Serve static files
-app.use(express.static(path.resolve(__dirname, "./client/dist")));
+app.use(express.static(path.resolve(__dirname, "./client/dist"), {
+  setHeaders: (res, path) => {
+    // Set proper MIME types for CSS and JS files
+    if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    } else if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    } else if (path.endsWith('.mjs')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    }
+  }
+}));
 
 // Serve React app for all other routes
 app.get("*", (req, res) => {
@@ -68,9 +93,6 @@ const server = http.createServer(app);
 
 // Initialize WebSocket service
 websocketService.initialize(server);
-
-// Remove the existing WebSocket code
-// wss.on("connection", (ws) => { ... });
 
 const start = async () => {
   try {
