@@ -66,6 +66,7 @@ class BroadcastService {
   }
 
   async joinBroadcast(broadcastId, userId) {
+    // Check for the IDs
     if (!broadcastId || !userId) {
       throw new BadRequestError("Broadcast ID and User ID are required");
     }
